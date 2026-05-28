@@ -1,233 +1,57 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BIBA - Quiz Hormonal</title>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Georgia', serif; background: #fdf6f0; color: #3a2a1a; min-height: 100vh; }
-  .container { max-width: 680px; margin: 0 auto; padding: 40px 20px; }
-  .logo { text-align: center; margin-bottom: 40px; }
-  .logo h1 { font-size: 2.5rem; letter-spacing: 0.3em; color: #8b5e3c; }
-  .logo p { font-size: 0.9rem; letter-spacing: 0.15em; color: #b08060; margin-top: 6px; }
-  .progress-bar { background: #e8d5c4; border-radius: 10px; height: 6px; margin-bottom: 30px; }
-  .progress-fill { background: #8b5e3c; height: 6px; border-radius: 10px; transition: width 0.4s ease; }
-  .question-card { background: #fff; border-radius: 16px; padding: 36px; box-shadow: 0 4px 20px rgba(139,94,60,0.08); }
-  .question-number { font-size: 0.8rem; letter-spacing: 0.2em; color: #b08060; margin-bottom: 12px; text-transform: uppercase; }
-  .question-text { font-size: 1.25rem; line-height: 1.6; margin-bottom: 28px; color: #3a2a1a; }
-  .options { display: flex; flex-direction: column; gap: 12px; }
-  .option-btn { background: #fdf6f0; border: 2px solid #e8d5c4; border-radius: 10px; padding: 14px 20px; text-align: left; font-size: 1rem; cursor: pointer; transition: all 0.2s; color: #3a2a1a; font-family: 'Georgia', serif; }
-  .option-btn:hover { border-color: #8b5e3c; background: #f5ebe0; }
-  .option-btn.selected { border-color: #8b5e3c; background: #8b5e3c; color: #fff; }
-  .nav-buttons { display: flex; justify-content: space-between; margin-top: 28px; }
-  .btn { padding: 12px 28px; border-radius: 10px; border: none; cursor: pointer; font-size: 1rem; font-family: 'Georgia', serif; transition: all 0.2s; }
-  .btn-primary { background: #8b5e3c; color: #fff; }
-  .btn-primary:hover { background: #7a4f30; }
-  .btn-secondary { background: transparent; border: 2px solid #8b5e3c; color: #8b5e3c; }
-  .btn-secondary:hover { background: #f5ebe0; }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .intro-card { background: #fff; border-radius: 16px; padding: 48px 36px; box-shadow: 0 4px 20px rgba(139,94,60,0.08); text-align: center; }
-  .intro-card h2 { font-size: 1.8rem; color: #8b5e3c; margin-bottom: 16px; }
-  .intro-card p { font-size: 1rem; line-height: 1.7; color: #6a4a2a; margin-bottom: 24px; }
-  .result-card { background: #fff; border-radius: 16px; padding: 48px 36px; box-shadow: 0 4px 20px rgba(139,94,60,0.08); text-align: center; }
-  .result-card h2 { font-size: 1.5rem; color: #8b5e3c; margin-bottom: 10px; }
-  .result-card h3 { font-size: 2rem; color: #3a2a1a; margin-bottom: 20px; }
-  .result-card p { font-size: 1rem; line-height: 1.7; color: #6a4a2a; margin-bottom: 28px; }
-  .buy-btn { display: inline-block; background: #8b5e3c; color: #fff; padding: 16px 40px; border-radius: 12px; text-decoration: none; font-size: 1.1rem; font-family: 'Georgia', serif; transition: background 0.2s; margin-top: 10px; }
-  .buy-btn:hover { background: #7a4f30; }
-  .form-group { margin-bottom: 20px; text-align: left; }
-  .form-group label { display: block; font-size: 0.9rem; color: #8b5e3c; margin-bottom: 6px; letter-spacing: 0.05em; }
-  .form-group input { width: 100%; padding: 12px 16px; border: 2px solid #e8d5c4; border-radius: 10px; font-size: 1rem; font-family: 'Georgia', serif; color: #3a2a1a; background: #fdf6f0; }
-  .form-group input:focus { outline: none; border-color: #8b5e3c; }
-  .loading { text-align: center; padding: 20px; color: #8b5e3c; font-style: italic; }
-</style>
-</head>
-<body>
-<div class="container">
-  <div class="logo">
-    <h1>BIBA</h1>
-    <p>SALUD HORMONAL FEMENINA</p>
-  </div>
+const https = require('https');
 
-  <!-- INTRO -->
-  <div id="intro" class="intro-card">
-    <h2>Descubre tu perfil hormonal</h2>
-    <p>Este test de 19 preguntas identifica cuál hormona está más desbalanceada en tu cuerpo y qué necesitas para recuperar tu energía, peso y bienestar.</p>
-    <p><strong>Tiempo estimado: 3-4 minutos</strong></p>
-    <button class="btn btn-primary" onclick="startQuiz()">Empezar el test →</button>
-  </div>
+exports.handler = async (event) => {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS'
+  };
 
-  <!-- QUIZ -->
-  <div id="quiz" style="display:none;">
-    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
-    <div class="question-card">
-      <div class="question-number" id="q-number"></div>
-      <div class="question-text" id="q-text"></div>
-      <div class="options" id="q-options"></div>
-      <div class="nav-buttons">
-        <button class="btn btn-secondary" id="btn-back" onclick="prevQuestion()">← Atrás</button>
-        <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()">Siguiente →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- FORM -->
-  <div id="form-section" style="display:none;">
-    <div class="question-card">
-      <div class="question-number">CASI LISTO</div>
-      <div class="question-text">¿A dónde enviamos tu resultado?</div>
-      <div class="form-group">
-        <label>Tu nombre</label>
-        <input type="text" id="user-name" placeholder="Nombre" />
-      </div>
-      <div class="form-group">
-        <label>Tu email</label>
-        <input type="email" id="user-email" placeholder="correo@ejemplo.com" />
-      </div>
-      <div class="nav-buttons">
-        <button class="btn btn-secondary" onclick="showQuiz()">← Atrás</button>
-        <button class="btn btn-primary" onclick="submitForm()">Ver mi resultado →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- RESULT -->
-  <div id="result" style="display:none;"></div>
-</div>
-
-<script>
-const questions = [
-  { text: "¿Cómo describes tu nivel de energía a lo largo del día?", options: ["Estable todo el día","Baja por la mañana, mejor al mediodía","Buena mañana, caída por la tarde","Agotada casi siempre"], scores: { C:1, I:0, T:0, E:0, C2:0, T2:0, I2:0, E2:1 } },
-  { text: "¿Con qué frecuencia sientes antojos de azúcar o carbohidratos?", options: ["Raramente","A veces después de comer","Frecuentemente, sobre todo por la tarde","Casi constantemente"], scores: { C:0, I:3, T:0, E:0 } },
-  { text: "¿Cómo es tu sueño habitualmente?", options: ["Duermo bien y me despierto descansada","Me cuesta conciliar el sueño","Me despierto de madrugada y no puedo volver a dormir","Duermo mucho pero igual me siento cansada"], scores: { C:2, I:0, T:1, E:0 } },
-  { text: "¿Has notado cambios en tu peso recientemente?", options: ["Mi peso está estable","Aumento de peso sin cambios en mi dieta","Pérdida de peso o dificultad para ganar","Retención de líquidos y sensación de hinchazón"], scores: { C:0, I:2, T:1, E:2 } },
-  { text: "¿Cómo describirías tu estado de ánimo en general?", options: ["Equilibrado y estable","Irritable o ansiosa con frecuencia","Deprimida o apática","Cambios de humor sin razón aparente"], scores: { C:2, I:0, T:0, E:2 } },
-  { text: "¿Experimentas síntomas físicos como dolor de cabeza, dolores musculares o articulares?", options: ["No frecuentemente","Sí, especialmente antes del período","Sí, dolores musculares generalizados","Sí, hinchazón y sensibilidad"], scores: { C:1, I:0, T:2, E:1 } },
-  { text: "¿Cómo es tu libido actualmente?", options: ["Normal o alta","Baja o ausente","Ha disminuido con la edad","Variable sin causa aparente"], scores: { C:0, I:0, T:3, E:1 } },
-  { text: "¿Tienes problemas digestivos frecuentes?", options: ["No","Sí, hinchazón después de comer","Sí, estreñimiento o digestión lenta","Sí, gases e incomodidad"], scores: { C:0, I:2, T:0, E:1 } },
-  { text: "¿Cómo describirías tu ciclo menstrual?", options: ["Regular y sin síntomas severos","Irregular o con SPM fuerte","Períodos abundantes o dolorosos","Períodos muy ligeros o ausentes"], scores: { C:0, I:0, T:1, E:3 } },
-  { text: "¿Tienes dificultad para concentrarte o memoria reducida?", options: ["No, me concentro bien","A veces, especialmente bajo estrés","Sí, frecuentemente","Sí, y me siento mentalmente lenta"], scores: { C:2, I:1, T:0, E:1 } },
-  { text: "¿Cómo manejas el estrés?", options: ["Bien, soy resiliente","Me cuesta pero me recupero","Me siento abrumada con frecuencia","El estrés me afecta mucho físicamente"], scores: { C:3, I:0, T:1, E:0 } },
-  { text: "¿Tienes problemas con tu piel o cabello?", options: ["No, están en buenas condiciones","Acné o piel grasa","Piel seca o cabello frágil","Caída del cabello o adelgazamiento"], scores: { C:0, I:1, T:2, E:1 } },
-  { text: "¿Sientes frío con frecuencia o tienes manos y pies fríos?", options: ["No","A veces","Sí, frecuentemente","Siempre, sin importar el clima"], scores: { C:0, I:0, T:2, E:1 } },
-  { text: "¿Con qué frecuencia te sientes ansiosa o con ataques de pánico?", options: ["Raramente","Ocasionalmente","Frecuentemente","Casi a diario"], scores: { C:3, I:0, T:0, E:1 } },
-  { text: "¿Cómo es tu apetito?", options: ["Normal y estable","Aumentado, especialmente por dulces","Disminuido o sin hambre","Variable e impredecible"], scores: { C:0, I:3, T:1, E:0 } },
-  { text: "¿Tienes sensación de palpitaciones o corazón acelerado?", options: ["No","Sí, bajo estrés","Sí, frecuentemente","Sí, especialmente de noche"], scores: { C:2, I:0, T:1, E:1 } },
-  { text: "¿Cómo es tu motivación y drive en general?", options: ["Alta, me siento motivada","Variable, depende del día","Baja, me cuesta arrancar","Muy baja, todo me parece un esfuerzo"], scores: { C:1, I:0, T:2, E:1 } },
-  { text: "¿Experimentas sofocos o sudoración excesiva?", options: ["No","A veces","Sí, especialmente de noche","Sí, durante el día con frecuencia"], scores: { C:0, I:0, T:0, E:3 } },
-  { text: "¿Tienes dificultad para perder peso a pesar de comer bien y hacer ejercicio?", options: ["No, mi metabolismo funciona bien","Sí, especialmente en la zona abdominal","Sí, en general es muy difícil","No aplica, tengo dificultad para ganar peso"], scores: { C:1, I:3, T:0, E:0 } }
-];
-
-let current = 0;
-let answers = new Array(questions.length).fill(null);
-
-function startQuiz() {
-  document.getElementById('intro').style.display = 'none';
-  document.getElementById('quiz').style.display = 'block';
-  showQuestion();
-}
-
-function showQuestion() {
-  const q = questions[current];
-  document.getElementById('q-number').textContent = `Pregunta ${current + 1} de ${questions.length}`;
-  document.getElementById('q-text').textContent = q.text;
-  document.getElementById('progress').style.width = `${((current + 1) / questions.length) * 100}%`;
-  document.getElementById('btn-back').disabled = current === 0;
-  document.getElementById('btn-next').textContent = current === questions.length - 1 ? 'Ver resultado →' : 'Siguiente →';
-
-  const opts = document.getElementById('q-options');
-  opts.innerHTML = '';
-  q.options.forEach((opt, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn' + (answers[current] === i ? ' selected' : '');
-    btn.textContent = opt;
-    btn.onclick = () => selectOption(i);
-    opts.appendChild(btn);
-  });
-}
-
-function selectOption(i) {
-  answers[current] = i;
-  document.querySelectorAll('.option-btn').forEach((b, idx) => {
-    b.classList.toggle('selected', idx === i);
-  });
-}
-
-function nextQuestion() {
-  if (answers[current] === null) { alert('Por favor selecciona una opción.'); return; }
-  if (current < questions.length - 1) { current++; showQuestion(); }
-  else { showForm(); }
-}
-
-function prevQuestion() {
-  if (current > 0) { current--; showQuestion(); }
-}
-
-function showForm() {
-  document.getElementById('quiz').style.display = 'none';
-  document.getElementById('form-section').style.display = 'block';
-}
-
-function showQuiz() {
-  document.getElementById('form-section').style.display = 'none';
-  document.getElementById('quiz').style.display = 'block';
-}
-
-function calculateProfile() {
-  const scores = { C: 0, I: 0, T: 0, E: 0 };
-  questions.forEach((q, qi) => {
-    const ans = answers[qi];
-    if (ans === null) return;
-    const s = q.scores;
-    const keys = Object.keys(s);
-    if (keys.length === 4) {
-      const hormones = ['C','I','T','E'];
-      scores[hormones[ans]] += (ans + 1);
-    } else {
-      Object.entries(s).forEach(([k, v]) => { if (scores[k] !== undefined) scores[k] += v; });
-    }
-  });
-  return Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
-}
-
-const profiles = {
-  C: { name: 'Cortisol', tag: 'Perfil_Cortisol', title: 'Perfil Cortisol', desc: 'Tu cuerpo está en modo alerta constante. El estrés crónico está afectando tu energía, sueño y peso. El programa BIBA te ayudará a regular tu respuesta al estrés y recuperar el equilibrio.' },
-  I: { name: 'Insulina', tag: 'Perfil_Insulina', title: 'Perfil Insulina', desc: 'Tu metabolismo necesita atención. Los antojos, la dificultad para perder peso y la energía inestable son señales de desbalance insulínico. BIBA tiene el protocolo exacto para ti.' },
-  T: { name: 'Testosterona', tag: 'Perfil_Testosterona', title: 'Perfil Testosterona', desc: 'Tu energía vital y motivación están bajas. El desbalance de testosterona afecta tu libido, masa muscular y estado de ánimo. BIBA te devuelve tu vitalidad.' },
-  E: { name: 'Estrógeno', tag: 'Perfil_Estrogeno', title: 'Perfil Estrógeno', desc: 'Tus fluctuaciones hormonales están afectando tu ciclo, estado de ánimo y bienestar. El programa BIBA está diseñado para estabilizar tu estrógeno de forma natural.' }
-};
-
-async function submitForm() {
-  const name = document.getElementById('user-name').value.trim();
-  const email = document.getElementById('user-email').value.trim();
-  if (!name || !email) { alert('Por favor completa tu nombre y email.'); return; }
-  if (!email.includes('@')) { alert('Por favor ingresa un email válido.'); return; }
-
-  const profileKey = calculateProfile();
-  const profile = profiles[profileKey];
-
-  document.getElementById('form-section').style.display = 'none';
-  document.getElementById('result').style.display = 'block';
-  document.getElementById('result').innerHTML = '<div class="loading">Calculando tu perfil hormonal...</div>';
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
 
   try {
-    await fetch('/.netlify/functions/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ first_name: name, email: email, hormone_profile: profile.tag })
-    });
-  } catch(e) { console.log('Submission error:', e); }
+    const body = JSON.parse(event.body);
+    const { first_name, email, hormone_profile } = body;
+    
+    console.log('Received:', JSON.stringify(body));
 
-  document.getElementById('result').innerHTML = `
-    <div class="result-card">
-      <h2>Tu perfil hormonal dominante es:</h2>
-      <h3>${profile.title}</h3>
-      <p>${profile.desc}</p>
-      <p>Hemos enviado tu resultado a <strong>${email}</strong>. Revisa tu bandeja de entrada.</p>
-      <a href="https://cynthiahcoaching.systeme.io/f2a72c12" class="buy-btn">Quiero equilibrar mis hormonas →</a>
-    </div>`;
-}
-</script>
-</body>
-</html>
+    const payload = JSON.stringify({ first_name, email, hormone_profile });
+
+    const result = await new Promise((resolve, reject) => {
+      const req = https.request({
+        hostname: 'hook.us2.make.com',
+        path: '/ao0wnjpcuq5vcobxb15kvg8j38d1',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(payload)
+        }
+      }, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          console.log('Make response status:', res.statusCode);
+          console.log('Make response body:', data);
+          resolve({ status: res.statusCode, body: data });
+        });
+      });
+      req.on('error', (e) => {
+        console.log('Request error:', e.message);
+        reject(e);
+      });
+      req.write(payload);
+      req.end();
+    });
+
+    return { 
+      statusCode: 200, 
+      headers, 
+      body: JSON.stringify({ success: true, make_status: result.status, make_response: result.body }) 
+    };
+  } catch (error) {
+    console.log('Error:', error.message);
+    return { statusCode: 500, headers, body: JSON.stringify({ error: error.message }) };
+  }
+};
