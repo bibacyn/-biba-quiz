@@ -19,7 +19,7 @@ exports.handler = async (event) => {
     await new Promise((resolve, reject) => {
       const req = https.request({
         hostname: 'hook.us2.make.com',
-        path: '/ao0wnjpcuq5vcobxb15kvg8j38d1',
+       path: '/2jzkhaqvl9y1qakp83qwqt5kdpwr6291',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
