@@ -13,45 +13,25 @@ exports.handler = async (event) => {
 
   try {
     const { first_name, email, hormone_profile } = JSON.parse(event.body);
-    const contactPayload = JSON.stringify({ email, fields: [{ slug: 'first_name', value: first_name }] });
 
-    const contact = await new Promise((resolve, reject) => {
+    const payload = JSON.stringify({ first_name, email, hormone_profile });
+
+    await new Promise((resolve, reject) => {
       const req = https.request({
-        hostname: 'api.systeme.io',
-        path: '/api/contacts',
+        hostname: 'hook.us2.make.com',
+        path: '/ao0wnjpcuq5vcobxb15kvg8j38d1',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': '2ot9nwacgb1xj639g3t090uvbtg8tg6ihw2auy48rtxhm932jinc6ysyvendewo0',
-          'Content-Length': Buffer.byteLength(contactPayload)
+          'Content-Length': Buffer.byteLength(payload)
         }
       }, (res) => {
         let data = '';
         res.on('data', chunk => data += chunk);
-        res.on('end', () => resolve(JSON.parse(data)));
+        res.on('end', () => resolve(data));
       });
       req.on('error', reject);
-      req.write(contactPayload);
-      req.end();
-    });
-
-    const tagPayload = JSON.stringify({ name: hormone_profile });
-    await new Promise((resolve, reject) => {
-      const req = https.request({
-        hostname: 'api.systeme.io',
-        path: `/api/contacts/${contact.id}/tags`,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': '2ot9nwacgb1xj639g3t090uvbtg8tg6ihw2auy48rtxhm932jinc6ysyvendewo0',
-          'Content-Length': Buffer.byteLength(tagPayload)
-        }
-      }, (res) => {
-        res.on('data', () => {});
-        res.on('end', resolve);
-      });
-      req.on('error', reject);
-      req.write(tagPayload);
+      req.write(payload);
       req.end();
     });
 
