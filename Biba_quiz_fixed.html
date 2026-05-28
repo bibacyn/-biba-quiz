@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BIBA — El Espejo Hormonal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f4f4f2;
+    --bg3: #ebebea;
+    --border: #e0e0dc;
+    --border2: #d4d4d0;
+    --text: #181818;
+    --muted: #aaaaaa;
+    --muted2: #6a6a62;
+    --pink: #FF007F;
+    --pink2: #e0006f;
+    --ivory: #181818;
+    --ins: #C8956C;
+    --cor: #9B7BAA;
+    --est: #4A9A7A;
+    --tes: #A89458;
+    --per: #888880;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: #ffffff;
+    color: #181818;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.012;
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* ── PROGRESS BAR ── */
+  #progress-bar-wrap {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: #e0e0dc;
+    z-index: 100;
+  }
+  #progress-bar {
+    height: 100%;
+    background: var(--pink);
+    width: 0%;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 0 8px rgba(255,0,127,0.5);
+  }
+
+  /* ── LOGO ── */
+  .logo {
+    position: fixed;
+    top: 24px; left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted2);
+    z-index: 90;
+    transition: opacity 0.3s;
+  }
+
+  /* ── SCREENS ── */
+  .screen {
+    display: none;
+    width: 100%;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 24px 60px;
+    animation: fadeUp 0.5s cubic-bezier(0.4,0,0.2,1) both;
+  }
+  .screen.active { display: flex; }
+  #screen-intro.active { display: flex; flex-direction: column; padding: 0; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── INTRO (light theme) ── */
+  #screen-intro {
+    background: #ffffff;
+    flex-direction: column;
+    padding: 0;
+    min-height: 100vh;
+  }
+  .intro-navbar {
+    border-bottom: 1px solid #ddddd8;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    background: #fff;
+  }
+  .intro-logo {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .intro-logo-bar { width: 3px; height: 24px; background: #9bc420; border-radius: 1px; }
+  .intro-logo-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-weight: 700;
+    color: #181818; letter-spacing: 0.04em;
+  }
+  .intro-logo-dot { width: 6px; height: 6px; background: #e0175a; border-radius: 1px; margin-bottom: 2px; }
+  .intro-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    text-align: center;
+  }
+  .intro-green-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .intro-green-tag-line { width: 18px; height: 2px; background: #9bc420; border-radius: 1px; }
+  .intro-green-tag-text {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: #9bc420; font-family: 'DM Sans', sans-serif;
+  }
+  .intro-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 58px);
+    font-weight: 700; line-height: 1.07;
+    color: #181818;
+    margin: 0 0 16px; max-width: 620px;
+  }
+  .intro-title em { color: #e0175a; font-style: italic; }
+  .intro-sub {
+    font-size: 15px; color: #6a6a62;
+    line-height: 1.75; max-width: 440px;
+    margin: 0 auto 36px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .intro-stats {
+    display: flex; gap: 20px;
+    justify-content: center;
+    margin-bottom: 36px; flex-wrap: wrap;
+  }
+  .intro-stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px; font-weight: 700;
+    color: #181818; line-height: 1;
+  }
+  .intro-stat-label {
+    font-size: 11px; color: #888880;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    font-weight: 600; margin-top: 2px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--pink);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 16px 36px;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 28px rgba(224,23,90,0.3);
+  }
+  .btn-primary:hover {
+    background: var(--pink2);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 40px rgba(224,23,90,0.45);
+  }
+  .btn-primary:active { transform: translateY(0); }
+  .intro-note {
+    margin-top: 14px;
+    font-size: 12px;
+    color: #888880;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .intro-footer {
+    background: #f4f4f2;
+    border-top: 1px solid #ddddd8;
+    padding: 16px 32px;
+    display: flex; gap: 24px;
+    justify-content: center; flex-wrap: wrap;
+  }
+  .intro-footer-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: #6a6a62;
+    font-weight: 600; letter-spacing: 0.06em;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ── QUESTION ── */
+  .q-wrap {
+    max-width: 620px;
+    width: 100%;
+  }
+  .q-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+  }
+  .q-section-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .q-section-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
+  .q-counter {
+    font-size: 11px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .q-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    color: var(--muted);
+    padding: 4px 0;
+    transition: color 0.15s;
+    letter-spacing: 0.04em;
+  }
+  .q-back:hover { color: var(--pink); }
+  .q-back-arrow { font-size: 13px; line-height: 1; }
+  .q-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(22px, 4vw, 30px);
+    font-weight: 600;
+    line-height: 1.35;
+    color: #181818;
+    margin-bottom: 40px;
+  }
+  .q-dash {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(13px, 2vw, 15px);
+    font-weight: 300;
+    font-style: normal;
+    color: var(--muted2);
+    margin-top: 10px;
+    line-height: 1.55;
+  }
+  .q-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .q-option {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 18px 22px;
+    cursor: pointer;
+    transition: all 0.18s;
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+  }
+  .q-option::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--pink);
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+  .q-option:hover {
+    border-color: var(--pink);
+    transform: translateX(3px);
+  }
+  .q-option:hover::before { opacity: 0.04; }
+  .q-option.selected {
+    border-color: var(--pink);
+  }
+  .q-option.selected::before { opacity: 0.08; }
+  .q-option-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .q-option-text {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.4;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Perfil options (4 choices) */
+  .q-option.perfil-opt {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 20px 22px;
+  }
+  .q-option.perfil-opt .q-option-text {
+    font-size: 15px;
+  }
+
+  /* Ninguna option — misma base que las demás pero más pequeña */
+  .q-option.ninguna-opt {
+    border: 1px solid var(--border);
+    background: #ffffff;
+    padding: 12px 22px;
+    justify-content: center;
+    flex-direction: row;
+  }
+  .q-option.ninguna-opt .q-option-text {
+    font-size: 12.5px;
+    color: var(--text);
+    text-align: center;
+  }
+  .q-option.ninguna-opt:hover { border-color: var(--pink); transform: translateX(3px); }
+  .q-option.ninguna-opt:hover::before { opacity: 0.04; }
+  .q-option.ninguna-opt.selected { border-color: var(--pink); }
+  .q-option.ninguna-opt.selected::before { opacity: 0.08; }
+
+  /* ── EMAIL ── */
+  .email-wrap {
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+  }
+  .email-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(32px, 6vw, 48px);
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    color: #181818;
+  }
+  .email-title em { font-style: italic; color: var(--pink); }
+  .email-sub {
+    font-size: 14px;
+    color: var(--muted2);
+    margin-bottom: 44px;
+    line-height: 1.6;
+  }
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .field-input {
+    background: #f4f4f2;
+    border: 1px solid #d4d4d0;
+    border-radius: 2px;
+    padding: 15px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: #181818;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .field-input::placeholder { color: var(--muted); }
+  .field-input:focus { border-color: var(--pink); }
+  .email-privacy {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 14px;
+  }
+
+  /* ── RESULT ── */
+  .result-wrap {
+    max-width: 660px;
+    width: 100%;
+  }
+  .result-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .result-eyebrow::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border2);
+  }
+  .result-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 7vw, 58px);
+    font-weight: 700;
+    line-height: 1.05;
+    margin-bottom: 8px;
+    color: #181818;
+  }
+  .result-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-style: italic;
+    color: var(--muted2);
+    margin-bottom: 40px;
+    line-height: 1.4;
+  }
+  .result-scores { display: none; }
+  .score-bar-item {
+    background: #f4f4f2;
+    border: 1px solid #e0e0dc;
+    border-radius: 3px;
+    padding: 16px 18px;
+  }
+  .score-bar-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .score-bar-name {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .score-bar-val {
+    font-size: 11px;
+    color: var(--muted2);
+    font-variant-numeric: tabular-nums;
+  }
+  .score-bar-track {
+    height: 3px;
+    background: #d4d4d0;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s cubic-bezier(0.4,0,0.2,1);
+    width: 0%;
+  }
+  .result-card {
+    border-radius: 3px;
+    padding: 32px;
+    margin-bottom: 24px;
+    border: 1px solid;
+  }
+  .result-card-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .result-card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    color: #181818;
+  }
+  .result-card-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--muted2);
+  }
+  .result-sintomas {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0dc;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sintoma-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: #6a6a62;
+    line-height: 1.5;
+  }
+  .sintoma-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+  .result-cta {
+    background: #f4f4f2;
+    border: 1px solid #e0e0dc;
+    border-radius: 3px;
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+  }
+  .result-cta-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .result-cta-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #181818;
+  }
+  .result-cta-title em { font-style: italic; }
+  .btn-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--pink);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 15px 26px;
+    border-radius: 2px;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 4px 24px rgba(224,23,90,0.4);
+    transition: all 0.2s;
+  }
+  .btn-cta:hover {
+    background: var(--pink2);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(224,23,90,0.5);
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    .q-option { padding: 15px 18px; }
+    .result-cta { flex-direction: column; align-items: flex-start; }
+  }
+
+  /* ── INTRO (light theme) ── */
+  #screen-intro {
+    background: #ffffff !important;
+    flex-direction: column;
+    padding: 0;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+  .intro-navbar {
+    border-bottom: 1px solid #e8e8e4;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    width: 100%;
+  }
+  .intro-logo { display: flex; align-items: flex-end; gap: 6px; }
+  .intro-logo-bar { width: 3px; height: 24px; background: #9bc420; border-radius: 1px; }
+  .intro-logo-text { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; color: #181818; letter-spacing: 0.04em; }
+  .intro-logo-dot { width: 6px; height: 6px; background: var(--pink); border-radius: 1px; margin-bottom: 2px; }
+  .intro-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px 36px;
+    text-align: center;
+  }
+  .intro-green-tag { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+  .intro-green-tag-line { width: 18px; height: 2px; background: #9bc420; border-radius: 1px; }
+  .intro-green-tag-text { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #9bc420; font-family: 'DM Sans', sans-serif; }
+  .intro-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 58px); font-weight: 700; line-height: 1.07; color: #181818; margin: 0 0 16px; max-width: 620px; }
+  .intro-title em { font-style: italic; color: var(--pink); }
+  .intro-sub { font-size: 15px; color: #6a6a62; line-height: 1.75; max-width: 440px; margin: 0 auto 36px; }
+  .intro-stats { display: flex; gap: 32px; justify-content: center; margin-bottom: 36px; flex-wrap: wrap; }
+  .intro-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 700; color: #181818; line-height: 1; }
+  .intro-stat-label { font-size: 11px; color: #888880; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin-top: 2px; }
+  .intro-note { margin-top: 14px; font-size: 12px; color: #888880; }
+  .intro-footer { background: #f4f4f2; border-top: 1px solid #e8e8e4; padding: 16px 32px; display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; width: 100%; }
+  .intro-footer-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #6a6a62; font-weight: 600; letter-spacing: 0.06em; }
+
+
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --carbon: #181818; --white: #ffffff; --light: #f4f4f2;
+  --light2: #ebebea; --ivory: #f0ece4; --green: #9bc420;
+  --pink: #e0175a; --mutedD: #888880; --mutedL: #6a6a62;
+  --borderL: #ddddd8;
+}
+body { font-family: 'Instrument Sans', sans-serif; background: var(--white); color: var(--carbon); }
+h1,h2,h3,p { margin: 0; }
+a { text-decoration: none; }
+
+/* NAV */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--white); border-bottom: 1px solid var(--borderL);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  display: flex; align-items: center; gap: 0; overflow-x: auto;
+  padding: 0 24px;
+}
+.nav-logo { display: flex; align-items: flex-end; gap: 5px; padding: 14px 24px 14px 0; border-right: 1px solid var(--borderL); margin-right: 20px; flex-shrink: 0; }
+.nav-logo-bar { width: 3px; height: 20px; background: var(--green); border-radius: 1px; }
+.nav-logo-text { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 700; color: var(--carbon); }
+.nav-logo-dot { width: 5px; height: 5px; background: var(--pink); border-radius: 1px; margin-bottom: 2px; }
+.nav-label { font-size: 11px; color: var(--mutedD); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; flex-shrink: 0; margin-right: 20px; white-space: nowrap; }
+.tabs { display: flex; gap: 2px; flex-shrink: 0; }
+.tab {
+  padding: 16px 20px; border: none; border-bottom: 3px solid transparent;
+  background: transparent; font-family: 'Instrument Sans', sans-serif;
+  font-size: 13px; font-weight: 500; color: var(--mutedD);
+  cursor: pointer; white-space: nowrap; transition: all 0.15s;
+}
+.tab:hover { color: var(--carbon); }
+.tab.active { font-weight: 700; }
+
+/* SECTIONS */
+.section { padding: 60px 32px; }
+.section-inner { max-width: 860px; margin: 0 auto; }
+.section-inner-sm { max-width: 720px; margin: 0 auto; }
+.section-inner-xs { max-width: 640px; margin: 0 auto; }
+.section-inner-900 { max-width: 900px; margin: 0 auto; }
+
+.section-tag { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.section-tag-line { width: 18px; height: 2px; border-radius: 1px; }
+.section-tag-text { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+
+/* HERO */
+.hero { padding: 52px 32px 48px; border-bottom: 3px solid; }
+.hero-badge { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; padding: 5px 14px; border: 1px solid; border-radius: 2px; }
+.hero-badge-name { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+.hero-badge-sep { color: #333; }
+.hero-badge-hormona { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #555; }
+.hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(28px, 4vw, 48px); font-weight: 700; color: var(--ivory); line-height: 1.07; margin-bottom: 16px; text-align: center; }
+.hero-frase { font-family: 'Cormorant Garamond', serif; font-size: clamp(15px, 2vw, 19px); font-style: italic; line-height: 1.5; text-align: center; }
+
+/* VSL */
+.vsl-box { width: 100%; aspect-ratio: 16/9; background: #111; border-radius: 3px; border: 1px solid #2a2a2a; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.vsl-glow { position: absolute; inset: 0; }
+.vsl-btn { width: 64px; height: 64px; border-radius: 50%; background: var(--pink); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; position: relative; box-shadow: 0 0 32px rgba(224,23,90,0.4); font-size: 24px; padding-left: 5px; }
+.vsl-label { font-size: 13px; color: #555; font-style: italic; position: relative; }
+
+/* CARDS */
+.card-light { background: var(--light); border-radius: 3px; padding: 24px 26px; }
+.card-white { background: var(--white); border: 1px solid var(--borderL); border-radius: 3px; padding: 24px 26px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 640px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: repeat(2,1fr); }
+  .section { padding: 48px 20px; }
+  .hero { padding: 40px 20px; }
+}
+
+/* SYMPTOMS */
+.sym-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media(max-width:500px){ .sym-grid { grid-template-columns: 1fr; } }
+.sym-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: var(--light); border-radius: 2px; }
+.sym-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+
+/* CAMBIOS */
+.cambios-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media(max-width:600px){ .cambios-grid { grid-template-columns: 1fr; } }
+
+/* CICLO */
+.ciclo-step { display: flex; align-items: flex-start; gap: 14px; border-left: 3px solid; border-radius: 3px; padding: 18px 22px; border: 1px solid; }
+.ciclo-connector { display: flex; flex-direction: column; align-items: flex-start; padding: 5px 0 5px 36px; gap: 2px; }
+.ciclo-line { width: 1px; height: 10px; background: var(--borderL); }
+.ciclo-text { font-size: 10px; color: var(--mutedD); font-weight: 600; letter-spacing: 0.08em; }
+.ciclo-arrow { color: var(--mutedD); font-size: 14px; }
+
+/* PROTOCOLO STEPS */
+.proto-step { display: flex; align-items: flex-start; gap: 16px; background: var(--light); border-radius: 3px; padding: 18px 22px; border-left: 3px solid; }
+.proto-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
+.proto-connector { width: 1px; height: 6px; background: var(--borderL); margin-left: 36px; }
+
+/* PILARES */
+.pilar-card { background: #111; border-radius: 3px; padding: 28px 26px; border-top: 3px solid; }
+
+/* INCLUYE */
+.incluye-col { background: var(--white); border-radius: 4px; overflow: hidden; border: 1px solid var(--borderL); }
+.incluye-head { padding: 16px 22px; }
+.incluye-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid var(--borderL); gap: 10px; }
+.incluye-row:last-child { border-bottom: none; }
+.check-circle { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 9px; font-weight: 700; }
+.ghost-row { padding: 12px 20px; border-bottom: 1px solid var(--borderL); }
+.ghost-bar { height: 14px; background: var(--light); border-radius: 2px; }
+
+/* TESTIMONIOS */
+.testi-card { background: var(--white); border: 1px solid var(--borderL); border-radius: 3px; padding: 28px; position: relative; overflow: hidden; }
+.testi-top { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--pink); }
+
+/* PRECIO */
+.precio-reveal {
+  display: inline-flex; flex-direction: column; align-items: center;
+  border: 2px solid var(--borderL); border-radius: 4px; padding: 22px 52px;
+  margin-bottom: 28px; cursor: pointer; background: var(--light);
+  transition: all 0.35s; min-width: 220px; user-select: none;
+}
+.precio-reveal:hover { border-color: var(--pink); }
+.precio-reveal.revealed { border-color: var(--pink); background: rgba(224,23,90,0.04); cursor: default; }
+.shimmer { width: 150px; height: 42px; background: var(--borderL); border-radius: 3px; animation: shimmer 1.4s ease-in-out infinite; }
+@keyframes shimmer { 0%,100%{opacity:.5} 50%{opacity:1} }
+
+/* CITA */
+.quote-box { position: relative; border-left: 3px solid; border-radius: 3px; padding: 28px 32px; }
+.quote-mark { position: absolute; top: 12px; left: 18px; font-family: 'Cormorant Garamond', serif; font-size: 44px; line-height: 1; }
+
+/* CTA BTN */
+.cta-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--pink); color: #fff; font-family: 'Instrument Sans', sans-serif; font-size: 15px; font-weight: 600; padding: 17px 36px; border-radius: 3px; box-shadow: 0 4px 24px rgba(224,23,90,0.35); transition: transform 0.15s, box-shadow 0.15s; }
+.cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(224,23,90,0.4); }
+
+/* MISC */
+.tag-pill { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #fff; padding: 2px 8px; border-radius: 2px; }
+.firma { font-size: 12px; color: var(--mutedD); font-weight: 600; letter-spacing: 0.04em; margin-top: 28px; }
+
+/* HIDDEN */
+.perfil-section { display: none; }
+.perfil-section.active { display: block; }
+
+</style>
+</head>
+<body>
+
+
+<div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+<div class="logo">BIBA</div>
+
+<!-- ════ INTRO ════ -->
+<div class="screen active" id="screen-intro">
+  <div class="intro-navbar">
+    <div class="intro-logo">
+      <div class="intro-logo-bar"></div>
+      <span class="intro-logo-text">BIBA</span>
+      <div class="intro-logo-dot"></div>
+    </div>
+  </div>
+  <div class="intro-body">
+    <div class="intro-green-tag">
+      <div class="intro-green-tag-line"></div>
+      <span class="intro-green-tag-text">El Espejo BIBA</span>
+    </div>
+    <h1 class="intro-title">
+      Tu cuerpo lleva tiempo<br/>
+      <em>mandándote señales.</em>
+    </h1>
+    <p class="intro-sub">
+      Este test identifica el patrón hormonal detrás de lo que estás viviendo — y te explica exactamente qué está pasando en tu cuerpo y cómo cambiarlo.
+    </p>
+    <div class="intro-stats">
+      <div>
+        <div class="intro-stat-num">19</div>
+        <div class="intro-stat-label">preguntas</div>
+      </div>
+      <div>
+        <div class="intro-stat-num">4</div>
+        <div class="intro-stat-label">perfiles</div>
+      </div>
+      <div>
+        <div class="intro-stat-num">~3</div>
+        <div class="intro-stat-label">minutos</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="startQuiz()">Empezar el test →</button>
+    <p class="intro-note">Resultado inmediato.</p>
+  </div>
+  <div class="intro-footer">
+    <div class="intro-footer-item"><span>🗂️</span> Perfil</div>
+    <div class="intro-footer-item"><span>⚡</span> Metabolismo</div>
+    <div class="intro-footer-item"><span>🔥</span> Estrés</div>
+    <div class="intro-footer-item"><span>🌊</span> Hormonas</div>
+    <div class="intro-footer-item"><span>💪</span> Vitalidad</div>
+  </div>
+</div>
+
+<!-- ════ QUESTION ════ -->
+<div class="screen" id="screen-question">
+  <div class="q-wrap">
+    <div class="q-meta">
+      <div class="q-section-tag" id="q-section-tag">
+        <div class="q-section-dot" id="q-section-dot"></div>
+        <span id="q-section-label"></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <button class="q-back" id="q-back-btn" onclick="prevQuestion()" style="display:none;">
+          <span class="q-back-arrow">←</span> Anterior
+        </button>
+        <div class="q-counter"><span id="q-num">1</span> de <span id="q-total">19</span></div>
+      </div>
+    </div>
+    <div class="q-text" id="q-text"></div>
+    <div class="q-options" id="q-options"></div>
+  </div>
+</div>
+
+<!-- ════ EMAIL ════ -->
+<div class="screen" id="screen-email">
+  <div class="email-wrap">
+    <div class="intro-eyebrow" style="justify-content:center;">Tu resultado está listo</div>
+    <h2 class="email-title">Un paso más<br/>para <em>revelarlo</em></h2>
+    <p class="email-sub">Déjame tu nombre y correo para enviarte el análisis completo de tu perfil hormonal.</p>
+    <div class="field-group">
+      <input class="field-input" type="text" id="input-nombre" placeholder="Tu nombre" autocomplete="given-name"/>
+      <input class="field-input" type="email" id="input-email" placeholder="Tu correo electrónico" autocomplete="email"/>
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center;" onclick="submitEmail()">Ver mi resultado →</button>
+    <p class="email-privacy">🔒 Tu información es privada. Sin spam, nunca.</p>
+  </div>
+</div>
+
+<!-- ════ RESULT ════ -->
+<div class="screen" id="screen-result">
+  <div class="result-wrap">
+    <div class="result-eyebrow" id="result-eyebrow" style="color:var(--pink)">Tu perfil dominante</div>
+    <h2 class="result-title" id="result-title"></h2>
+    <p class="result-subtitle" id="result-subtitle"></p>
+
+    <div class="result-scores" id="result-scores"></div>
+
+    <div class="result-card" id="result-card-main"></div>
+
+    <div class="result-cta" id="result-cta">
+      <div>
+        <div class="result-cta-label" id="cta-label" style="color:var(--pink)">Protocolo BIBA Nivel 1</div>
+        <div class="result-cta-title">4 semanas. Diseñado para tu perfil.<br/><em style="color:var(--pink)">Acceso inmediato.</em></div>
+      </div>
+      <a href="https://soybiba.com" class="btn-cta">Quiero empezar → $99 USD</a>
+    </div>
+  </div>
+</div>
+
+<div id="perfil-container" style="display:none;">
+
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-logo">
+    <div class="nav-logo-bar"></div>
+    <span class="nav-logo-text">BIBA</span>
+    <div class="nav-logo-dot"></div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     INSULINA
+═══════════════════════════════════════════════════ -->
+<div id="perfil-insulina" class="perfil-section active">
+
+  <!-- HERO -->
+  <div class="hero" style="background:#181818; border-color:#C8956C; text-align:center;">
+    <div class="section-inner">
+      <div class="hero-badge" style="border-color:#C8956C44; margin:0 auto 20px;">
+        <span>⚡</span>
+        <span class="hero-badge-name" style="color:#C8956C;">Perfil Metabólico</span>
+        <span class="hero-badge-sep">·</span>
+        <span class="hero-badge-hormona">Insulina</span>
+      </div>
+      <h1>Tu metabolismo lleva tiempo trabajando en tu contra</h1>
+      <p class="hero-frase" style="color:#C8956C;">"Tu cuerpo no está roto. Está siguiendo instrucciones equivocadas — y eso se puede cambiar."</p>
+    </div>
+  </div>
+
+  <!-- VSL -->
+  <div class="section" style="background:#181818; border-bottom:1px solid #1a1a1a; padding-top:48px; padding-bottom:52px;">
+    <div class="section-inner-sm" style="text-align:center;">
+
+      <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(17px,2.5vw,22px);font-weight:600;color:#fff;line-height:1.4;margin-bottom:28px;max-width:520px;margin-left:auto;margin-right:auto;">Haz clic ahora y descubre por qué tu cuerpo ya no responde como antes… el error #1 que está frenando tu energía y el primer paso simple que puedes tomar hoy para activarla de nuevo.</p>
+      <div class="vsl-box">
+        <div class="vsl-glow" style="background:radial-gradient(ellipse at center,rgba(200,149,108,0.18),transparent 70%);"></div>
+        <div class="vsl-btn">▶</div>
+        <p class="vsl-label">Video VSL — próximamente</p>
+      </div>
+      <p style="font-size:14px;color:#888;line-height:1.75;max-width:480px;margin:20px auto 0;">En este video descubres por qué tu cuerpo no responde a dietas ni ejercicios… y el primer paso simple que realmente estabiliza tu energía y controla los antojos.</p>
+    </div>
+  </div>
+
+  <!-- CARTA -->
+  <div class="section" style="background:var(--light); border-bottom:1px solid var(--borderL);">
+    <div class="section-inner-sm">
+      <p style="font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:600; color:#C8956C; font-style:italic; margin-bottom:24px; line-height:1.4;">Para ti que haces todo bien — y tu cuerpo no responde</p>
+      <p style="font-size:15px; color:var(--mutedL); line-height:1.8; margin-bottom:18px;">Llegas aquí porque te esfuerzas. Comes mejor que antes, intentas moverte, cuidas lo que entra. Y aun así el abdomen no baja, la báscula se queda fija, y cada tarde hay un momento donde tu cerebro exige azúcar o pan como si no hubieras comido en días.</p>
+      <p style="font-size:15px; color:var(--mutedL); line-height:1.8; margin-bottom:18px;">Eso no es falta de disciplina. Eso es lo que pasa cuando la insulina perdió su sensibilidad — y tu cuerpo, literalmente, no puede procesar bien la glucosa que le estás dando.</p>
+      <p style="font-size:15px; color:var(--mutedL); line-height:1.8; margin-bottom:0;">Cuando lo entendí de verdad, por primera vez en años dejé de pelear contra mi propio cuerpo. BIBA trabaja exactamente esto.</p>
+      <p class="firma">— Cynthia Cowan, Health Coach Certificada · IIN · ACE Fitness · 10 años</p>
+    </div>
+  </div>
+
+  <!-- CLÍNICO -->
+  <div class="section" style="background:var(--white); border-bottom:1px solid var(--borderL);">
+    <div class="section-inner">
+      <div class="section-tag">
+        <div class="section-tag-line" style="background:#C8956C;"></div>
+        <span class="section-tag-text" style="color:#C8956C;">Análisis clínico</span>
+      </div>
+      <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(22px,3vw,34px); font-weight:700; color:var(--carbon); margin-bottom:32px; line-height:1.1;">Qué está pasando con tu insulina</h2>
+      <div class="grid-2" style="margin-bottom:24px;">
+        <div class="card-light" style="border-left:3px solid #C8956C;">
+          <div style="font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#C8956C; margin-bottom:10px;">Qué está pasando</div>
+          <p style="font-size:13.5px; color:var(--carbon); line-height:1.75;">La insulina es la hormona que abre las puertas de tus células para que entre la glucosa. Cuando hay resistencia, esas puertas se atascan — el páncreas produce más insulina para compensar, los niveles circulantes suben, y el cuerpo empieza a guardar glucosa como grasa en lugar de usarla como energía.</p>
+        </div>
+        <div class="card-light" style="border-left:3px solid var(--borderL);">
+          <div style="font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:var(--mutedD); margin-bottom:10px;">Por qué ocurre</div>
+          <p style="font-size:13.5px; color:var(--carbon); line-height:1.75;">La resistencia a insulina se desarrolla gradualmente por estrés crónico (el cortisol la bloquea directamente), patrones de alimentación que generan picos repetidos de glucosa, y falta de movimiento que reduce los receptores activos en músculo.</p>
+        </div>
+      </div>
+      <div class="card-white">
+        <div style="font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:var(--mutedD); margin-bottom:16px;">Síntomas más frecuentes</div>
+        <div class="sym-grid">
+          <div class="sym-item"><div class="sym-dot" style="background:#C8956C;"></div><span style="font-size:13px; color:var(--carbon); line-height:1.5;">Inflamación abdominal que aumenta durante el día</span></div>
+          <div class="sym-item"><div class="sym-dot" style="background:#C8956C;"></div><span style="font-size:13px; color:var(--carbon); line-height:1.5;">Dificultad para perder grasa abdominal específicamente</span></div>
+          <div class="sym-item"><div class="sym-dot" style="background:#C8956C;"></div><span style="font-size:13px; color:var(--carbon); line-height:1.5;">Crash de energía entre las 3 y 5 pm</span></div>
+          <div class="sym-item"><div class="sym-dot" style="background:#C8956C;"></div><span style="font-size:13px; color:var(--carbon); line-height:1.5;">Antojos intensos de azúcar o carbohidratos</span></div>
+          <div class="sym-item"><div class="sym-dot" style="background:#C8956C;"></div><span style="font-size:13px; color:var(--carbon); line-height:1.5;">Pesadez y lentitud después de comer</span></div>
+          <div class="sym-item"><div class="sym-dot" style="background:#C8956C;"></div><span style="font-size:13px; color:var(--carbon); line-height:1.5;">Piel oscura en axilas, cuello o ingles (acantosis)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CICLO AGOTAMIENTO -->
+  <div class="section" style="background:var(--light); border-bottom:1px solid var(--borderL);">
+    <div class="section-inner-xs">
+      <div style="text-align:center; margin-bottom:40px;">
+        <div class="section-tag" style="justify-content:center; margin-bottom:14px;">
+          <div class="section-tag-line" style="background:#C8956C;"></div>
+          <span class="section-tag-text" style="color:#C8956C;">Por qué es tan difícil romperlo</span>
+          <div class="section-tag-line" style="background:#C8956C;"></div>
+        </div>
+        <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(24px,3.5vw,38px); font-weight:700; color:var(--carbon); margin-bottom:16px; line-height:1.1;">El ciclo del agotamiento.</h2>
+        <p style="font-size:14px; color:var(--mutedL); line-height:1.75;">No es falta de disciplina. Es un ciclo metabólico que se auto-alimenta — y tu cuerpo lo vive cada día.</p>
+      </div>
+      <div id="ciclo-insulina"></div>
+      <div class="quote-box" style="background:var(--white); border-color:#C8956C; margin:32px 0 24px;">
+        <span class="quote-mark" style="color:rgba(200,149,108,0.3);">"</span>
+        <p style="font-family:'Cormorant Garamond',serif; font-size:clamp(15px,2vw,18px); font-style:italic; color:var(--carbon); line-height:1.75; padding-top:8px;">Intentar cambiar con fuerza de voluntad cuando tu sistema nervioso está en alerta es como conducir con el freno de mano puesto. Gastas el doble de energía y avanzas la mitad.</p>
+      </div>
+      <div style="text-align:center;">
+        <p style="font-size:14px; color:var(--mutedL); margin-bottom:8px; line-height:1.7;">No es que no tengas ganas. Es que cada día el ciclo te deja con menos.</p>
+        <p style="font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:700; color:#C8956C;">BIBA rompe esto desde el primer paso.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LO QUE CAMBIA -->
+  <div class="section" style="background:var(--carbon); border-bottom:1px solid #1a1a1a;">
+    <div class="section-inner">
+      <div style="text-align:center; margin-bottom:48px;">
+        <div class="section-tag" style="justify-content:center; margin-bottom:14px;">
+          <div class="section-tag-line" style="background:#C8956C;"></div>
+          <span class="section-tag-text" style="color:#C8956C;">El sistema</span>
+          <div class="section-tag-line" style="background:#C8956C;"></div>
+        </div>
+        <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(24px,3.5vw,40px); font-weight:700; color:var(--ivory); margin-bottom:12px; line-height:1.1;">Lo que cambia con <em style="color:#C8956C; font-style:italic;">BIBA.</em></h2>
+        <p style="font-size:15px; color:#888; max-width:520px; margin:0 auto; line-height:1.7;">No es un plan de dieta. No es una rutina de ejercicio. Es un sistema de tres capas que trabaja tu biología desde adentro.</p>
+      </div>
+      <div class="grid-3" style="margin-bottom:40px;">
+        <div class="pilar-card" style="border-color:var(--green);">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;"><span style="font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:var(--green); letter-spacing:0.1em;">01</span><span style="font-size:20px;">🥗</span></div>
+          <div style="font-size:15px; font-weight:700; color:var(--ivory); margin-bottom:6px; line-height:1.3;">Nutrición de Alta Densidad</div>
+          <p style="font-family:'Cormorant Garamond',serif; font-size:14px; font-style:italic; color:var(--green); margin-bottom:12px; line-height:1.5;">No quitas alimentos. Añades lo que tu cuerpo necesita.</p>
+          <p style="font-size:13px; color:#888; margin-bottom:16px; line-height:1.65;">Cada semana incorporas una mejora concreta que reduce antojos, estabiliza energía y baja inflamación sin esfuerzo mental.</p>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; align-items:center; gap:8px;"><div style="width:4px;height:4px;border-radius:50%;background:var(--green);flex-shrink:0;"></div><span style="font-size:12.5px;color:#aaa;">Sin contar calorías</span></div>
+            <div style="display:flex; align-items:center; gap:8px;"><div style="width:4px;height:4px;border-radius:50%;background:var(--green);flex-shrink:0;"></div><span style="font-size:12.5px;color:#aaa;">Sin pesar comida</span></div>
+            <div style="display:flex; align-items:center; gap:8px;"><div style="width:4px;height:4px;border-radius:50%;background:var(--green);flex-shrink:0;"></div><span style="font-size:12.5px;color:#aaa;">Sin restringir grupos enteros</span></div>
+          </div>
+        </div>
+        <div class="pilar-card" style="border-color:#C8956C;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;"><span style="font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:#C8956C; letter-spacing:0.1em;">02</span><span style="font-size:20px;">⚡</span></div>
+          <div style="font-size:15px; font-weight:700; color:var(--ivory); margin-bottom:6px; line-height:1.3;">Activadores Metabólicos</div>
+          <p style="font-family:'Cormorant Garamond',serif; font-size:14px; font-style:italic; color:#C8956C; margin-bottom:12px; line-height:1.5;">Empiezas con minutos, no con horas.</p>
+          <p style="font-size:13px; color:#888; margin-bottom:16px; line-height:1.65;">Movimientos cortos diseñados para despertar el metabolismo y dejar al cuerpo trabajando después de terminar.</p>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; align-items:center; gap:8px;"><div style="width:4px;height:4px;border-radius:50%;background:#C8956C;flex-shrink:0;"></div><span style="font-size:12.5px;color:#aaa;">5–8 minutos al día</span></div>
+            <div style="display:flex; align-items:center; gap:8px;"><div style="width:4px;height:4px;border-radius:50%;background:#C8956C;flex-shrink:0;"></div><span style="font-size:12.5px;color:#aaa;">Sin gym ni equipo</span></div>
+            <div style="display:flex; align-items:center; gap:8px;"><div style="width:4px;height:4px;border-radius:50%;background:#C8956C;flex-shrink:0;"></div><span style="font-size:12.5px;color:#aaa;">Progresivos semana a semana</span></div>
+          </div>
+        </div>
+        <div class="pilar-card" style="border-color:var(--pink);">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;"><span style="font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:var(--pink); letter-spacing:0.1em;">03</span><span style="font-size:20px;">🧠</span></div>
+          <div style="font-size:15px; font-weight:700; color:var(--ivory); margin-bottom:6px; line-height:1.3;">Regulación del Sistema Nervioso</div>
+          <p style="font-family:'Cormorant Garamond',serif; font-size:14px; font-style:italic; color:var(--pink); margin-bottom:12px; line-height:1.5;">Ningún cuerpo cambia en alerta constante.</p>
+          <p style="font-size:13px; color:#888; margin-bottom:16px; line-height:1.65;">Bajamos el ruido fisiológico que provoca hambre, cansancio y retención. Tu sistema nervioso aprende a soltar.</p>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; align-items:center; gap:8px;"><div style="width:4px;height:4px;border-radius:50%;background:var(--pink);flex-shrink:0;"></div><span style="font-size:12.5px;color:#aaa;">Audios de meditación progresivos</span></div>
+            <div style="display:flex; align-items:center; gap:8px;"><div style="width:4px;height:4px;border-radius:50%;background:var(--pink);flex-shrink:0;"></div><span style="font-size:12.5px;color:#aaa;">Sin experiencia previa</span></div>
+            <div style="display:flex; align-items:center; gap:8px;"><div style="width:4px;height:4px;border-radius:50%;background:var(--pink);flex-shrink:0;"></div><span style="font-size:12.5px;color:#aaa;">El eslabón que siempre faltó</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="background:#0d0d0d; border:1px solid #1f1f1f; border-radius:3px; padding:32px 36px; border-left:3px solid #C8956C;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:#C8956C; margin-bottom:20px;">El efecto acumulativo</div>
+        <p style="font-size:14px; color:#888; margin-bottom:24px; line-height:1.7;">Cuando las tres capas trabajan juntas, algo cambia que no habías experimentado antes.</p>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; align-items:flex-start; gap:12px;"><span style="color:#C8956C; font-weight:700; font-size:14px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:14px; color:var(--ivory); line-height:1.55;">Tu mente deja de negociar contigo cada mañana</span></div>
+          <div style="display:flex; align-items:flex-start; gap:12px;"><span style="color:#C8956C; font-weight:700; font-size:14px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:14px; color:var(--ivory); line-height:1.55;">El progreso deja de depender de ti y empieza a ocurrir solo</span></div>
+          <div style="display:flex; align-items:flex-start; gap:12px;"><span style="color:#C8956C; font-weight:700; font-size:14px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:14px; color:var(--ivory); line-height:1.55;">Cumplir se vuelve más fácil que no cumplir</span></div>
+          <div style="display:flex; align-items:flex-start; gap:12px;"><span style="color:#C8956C; font-weight:700; font-size:14px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:14px; color:var(--ivory); line-height:1.55;">El físico cambia como consecuencia. No por presión. Por adaptación.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROTOCOLO / ASÍ EMPIEZA TU MAÑANA -->
+  <div class="section" style="background:var(--white); border-bottom:1px solid var(--borderL);">
+    <div class="section-inner">
+      <div style="margin-bottom:48px;">
+        <div class="section-tag"><div class="section-tag-line" style="background:#C8956C;"></div><span class="section-tag-text" style="color:#C8956C;">El protocolo</span></div>
+        <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(24px,3.5vw,40px); font-weight:700; color:var(--carbon); margin-bottom:12px; line-height:1.05;">Así empieza tu mañana con BIBA</h2>
+        <p style="font-size:15px; color:var(--mutedL); line-height:1.75; max-width:560px;">No decides nada al despertar. Todo ya está listo. Sin pensar. Sin decidir. Sin fricción.</p>
+      </div>
+      <!-- Noche anterior -->
+      <div style="background:var(--carbon); border-radius:3px; padding:28px 32px; margin-bottom:20px; border-left:3px solid #C8956C;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#C8956C; margin-bottom:14px;">La noche anterior</div>
+        <p style="font-size:14px; color:#aaa; margin-bottom:18px; line-height:1.6;">Preparas todo para que mañana solo presiones play.</p>
+        <div class="sym-grid">
+          <div style="display:flex; align-items:center; gap:10px;"><div style="width:5px;height:5px;border-radius:50%;background:#C8956C;flex-shrink:0;"></div><span style="font-size:13px; color:var(--ivory);">El desayuno listo en el refrigerador</span></div>
+          <div style="display:flex; align-items:center; gap:10px;"><div style="width:5px;height:5px;border-radius:50%;background:#C8956C;flex-shrink:0;"></div><span style="font-size:13px; color:var(--ivory);">Tu mat en su lugar</span></div>
+          <div style="display:flex; align-items:center; gap:10px;"><div style="width:5px;height:5px;border-radius:50%;background:#C8956C;flex-shrink:0;"></div><span style="font-size:13px; color:var(--ivory);">El agua en tu mesa de noche</span></div>
+          <div style="display:flex; align-items:center; gap:10px;"><div style="width:5px;height:5px;border-radius:50%;background:#C8956C;flex-shrink:0;"></div><span style="font-size:13px; color:var(--ivory);">Los suplementos del día listos</span></div>
+          <div style="display:flex; align-items:center; gap:10px;"><div style="width:5px;height:5px;border-radius:50%;background:#C8956C;flex-shrink:0;"></div><span style="font-size:13px; color:var(--ivory);">Ya viste el ejercicio de la semana</span></div>
+        </div>
+      </div>
+      <!-- Pasos -->
+      <div style="display:flex; flex-direction:column; margin-bottom:40px;">
+        <div class="proto-step" style="border-color:#C8956C; background:rgba(200,149,108,0.08);">
+          <div class="proto-icon" style="background:rgba(200,149,108,0.2); border:1.5px solid rgba(200,149,108,0.4);">▶</div>
+          <div style="flex:1;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <span class="tag-pill" style="background:#C8956C;">Play</span>
+              <span style="font-size:14px; font-weight:700; color:var(--carbon);">Audio de la semana</span>
+              <span style="font-size:11px; color:var(--mutedD); margin-left:auto; font-weight:600;">4–5 min</span>
+            </div>
+            <p style="font-size:13px; color:var(--mutedL); line-height:1.6;">Celular en modo avión. Tu mente entra en modo acción antes de que el mundo entre.</p>
+          </div>
+        </div>
+        <div class="proto-connector"></div>
+        <div class="proto-step" style="border-color:#C8956C80;">
+          <div class="proto-icon" style="background:rgba(200,149,108,0.1); border:1.5px solid rgba(200,149,108,0.2);">🔥</div>
+          <div style="flex:1;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <span style="font-size:14px; font-weight:700; color:var(--carbon);">Calentamiento</span>
+              <span style="font-size:11px; color:var(--mutedD); margin-left:auto; font-weight:600;">5–8 min</span>
+            </div>
+            <p style="font-size:13px; color:var(--mutedL); line-height:1.6;">Tu cuerpo despierta sin estrés ni cortisol disparado.</p>
+          </div>
+        </div>
+        <div class="proto-connector"></div>
+        <div class="proto-step" style="border-color:var(--borderL);">
+          <div class="proto-icon" style="background:rgba(139,107,139,0.1); border:1.5px solid rgba(139,107,139,0.2);">⚡</div>
+          <div style="flex:1;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <span style="font-size:14px; font-weight:700; color:var(--carbon);">Ejercicio HIIT de la semana</span>
+              <span style="font-size:11px; color:var(--mutedD); margin-left:auto; font-weight:600;">5–8 min</span>
+            </div>
+            <p style="font-size:13px; color:var(--mutedL); line-height:1.6;">Corto, específico, progresivo. Activa tu metabolismo para las horas siguientes.</p>
+          </div>
+        </div>
+        <div class="proto-connector"></div>
+        <div class="proto-step" style="border-color:var(--borderL);">
+          <div class="proto-icon" style="background:rgba(74,122,101,0.1); border:1.5px solid rgba(74,122,101,0.2);">🧠</div>
+          <div style="flex:1;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <span style="font-size:14px; font-weight:700; color:var(--carbon);">Meditación</span>
+              <span style="font-size:11px; color:var(--mutedD); margin-left:auto; font-weight:600;">5–8 min</span>
+            </div>
+            <p style="font-size:13px; color:var(--mutedL); line-height:1.6;">Inmediatamente después del movimiento. Tu sistema nervioso recibe la señal de que puede soltar.</p>
+          </div>
+        </div>
+        <div class="proto-connector"></div>
+        <div class="proto-step" style="border-color:var(--green);">
+          <div class="proto-icon" style="background:rgba(155,196,32,0.1); border:1.5px solid rgba(155,196,32,0.25);">🥗</div>
+          <div style="flex:1;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <span class="tag-pill" style="background:var(--green); color:var(--carbon);">Lista</span>
+              <span style="font-size:14px; font-weight:700; color:var(--carbon);">Desayuno</span>
+            </div>
+            <p style="font-size:13px; color:var(--mutedL); line-height:1.6;">Ya estaba listo. Solo lo disfrutas. El día apenas empieza y ya cumpliste contigo.</p>
+          </div>
+        </div>
+      </div>
+      <!-- Semanas -->
+      <div style="margin-bottom:40px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:var(--mutedD); margin-bottom:20px;">Cómo crece semana a semana</div>
+        <div class="grid-4" style="margin-bottom:16px;">
+          <div class="card-light" style="border-top:3px solid #C8956C;">
+            <div style="font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--mutedD); margin-bottom:6px;">Semana 1</div>
+            <div style="font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:#C8956C; margin-bottom:12px; line-height:1;">19 min</div>
+            <div style="font-size:11px; color:var(--mutedL); line-height:1.6;">Audio · 4 min<br>Calentamiento · 5 min<br>Ejercicio · 5 min<br>Meditación · 5 min</div>
+          </div>
+          <div class="card-light" style="border-top:3px solid var(--borderL);">
+            <div style="font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--mutedD); margin-bottom:6px;">Semana 2</div>
+            <div style="font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:var(--carbon); margin-bottom:12px; line-height:1;">21 min</div>
+            <div style="font-size:11px; color:var(--mutedL); line-height:1.6;">Audio · 4 min<br>Calentamiento · 5 min<br>Ejercicio · 6 min<br>Meditación · 6 min</div>
+          </div>
+          <div class="card-light" style="border-top:3px solid var(--borderL);">
+            <div style="font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--mutedD); margin-bottom:6px;">Semana 3</div>
+            <div style="font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:var(--carbon); margin-bottom:12px; line-height:1;">23 min</div>
+            <div style="font-size:11px; color:var(--mutedL); line-height:1.6;">Audio · 4 min<br>Calentamiento · 5 min<br>Ejercicio · 7 min<br>Meditación · 7 min</div>
+          </div>
+          <div class="card-light" style="border-top:3px solid var(--borderL);">
+            <div style="font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--mutedD); margin-bottom:6px;">Semana 4</div>
+            <div style="font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:700; color:var(--carbon); margin-bottom:12px; line-height:1;">25 min</div>
+            <div style="font-size:11px; color:var(--mutedL); line-height:1.6;">Audio · 4 min<br>Calentamiento · 5 min<br>Ejercicio · 8 min<br>Meditación · 8 min</div>
+          </div>
+        </div>
+        <div class="card-light" style="border-left:3px solid #C8956C; padding:16px 22px;">
+          <p style="font-size:13.5px; color:var(--carbon); line-height:1.7;">Empiezas con <strong>19 minutos</strong>. Terminas con <strong>25</strong>. Nunca se siente como un salto. Siempre como el siguiente paso natural.</p>
+        </div>
+      </div>
+      <!-- Nutrición -->
+      <div style="margin-bottom:40px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:var(--mutedD); margin-bottom:20px;">La nutrición también crece al mismo ritmo</div>
+        <div style="display:flex; flex-direction:column;">
+          <div style="display:flex; gap:20px; background:var(--light); border-radius:3px; padding:18px 22px; border-left:3px solid #C8956C;">
+            <div style="flex-shrink:0; min-width:100px;"><span style="font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:#C8956C;">Semanas 1 y 2</span></div>
+            <div><div style="font-size:14px; font-weight:700; color:var(--carbon); margin-bottom:4px;">Desayuno + Activadores BIBA</div><p style="font-size:13px; color:var(--mutedL); line-height:1.6;">Bio hacks probados científicamente. Con masterclass del por qué cada uno funciona.</p></div>
+          </div>
+          <div style="width:1px; height:6px; background:var(--borderL); margin-left:22px;"></div>
+          <div style="display:flex; gap:20px; background:var(--light); border-radius:3px; padding:18px 22px; border-left:3px solid var(--green);">
+            <div style="flex-shrink:0; min-width:100px;"><span style="font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--green);">Semana 3</span></div>
+            <div><div style="font-size:14px; font-weight:700; color:var(--carbon); margin-bottom:4px;">Sumamos la comida</div><p style="font-size:13px; color:var(--mutedL); line-height:1.6;">Con el desayuno ya automático, agregamos estructura a tu comida principal.</p></div>
+          </div>
+          <div style="width:1px; height:6px; background:var(--borderL); margin-left:22px;"></div>
+          <div style="display:flex; gap:20px; background:var(--light); border-radius:3px; padding:18px 22px; border-left:3px solid var(--pink);">
+            <div style="flex-shrink:0; min-width:100px;"><span style="font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--pink);">Semana 4</span></div>
+            <div><div style="font-size:14px; font-weight:700; color:var(--carbon); margin-bottom:4px;">Sumamos la cena</div><p style="font-size:13px; color:var(--mutedL); line-height:1.6;">Las tres comidas funcionando. Sin haber hecho un cambio dramático en ningún momento.</p></div>
+          </div>
+        </div>
+      </div>
+      <!-- Cierre -->
+      <div style="background:var(--carbon); border-radius:3px; padding:32px 36px; text-align:center; border-top:3px solid #C8956C;">
+        <p style="font-family:'Cormorant Garamond',serif; font-size:clamp(20px,2.5vw,28px); font-weight:700; color:var(--ivory); margin-bottom:8px; line-height:1.2;">Solo presionas play.</p>
+        <p style="font-family:'Cormorant Garamond',serif; font-size:16px; font-style:italic; color:#C8956C;">Y el sistema hace el resto.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMBIOS REALES -->
+  <div class="section" style="background:var(--light); border-bottom:1px solid var(--borderL);">
+    <div class="section-inner">
+      <div class="section-tag"><div class="section-tag-line" style="background:#C8956C;"></div><span class="section-tag-text" style="color:#C8956C;">Lo que vas a notar</span></div>
+      <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(22px,3vw,34px); font-weight:700; color:var(--carbon); margin-bottom:32px; line-height:1.1;">Cambios reales.<br><em style="color:#C8956C; font-style:italic;">En tu cuerpo, tu energía, tu mente.</em></h2>
+      <div class="cambios-grid">
+        <div class="card-white" style="border-top:3px solid #C8956C;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#C8956C; margin-bottom:16px;">Semana 1</div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">Menos inflamación — ese peso pesado en el abdomen empieza a ceder</span></div>
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">Mejor digestión — sin el malestar después de comer</span></div>
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">Se acabó el mal del puerco — comes y sigues con tu día</span></div>
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">Menos ansiedad — tu sistema nervioso empieza a soltar</span></div>
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">Duermes más profundo — y eso cambia todo lo demás</span></div>
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">El crash de las 3pm deja de controlarte</span></div>
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">Los antojos pierden urgencia — ya no se sienten como emergencias</span></div>
+          </div>
+        </div>
+        <div class="card-white" style="border-top:3px solid #C8956C;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#C8956C; margin-bottom:16px;">Mes 1</div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">Menos antojos por la tarde — el ciclo de glucosa se regula</span></div>
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">Más fuerza — tu cuerpo empieza a construir en lugar de sobrevivir</span></div>
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">Tu ropa queda diferente — porque la inflamación bajó</span></div>
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">Más energía sin depender del café</span></div>
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">Empiezas a cumplir sin esfuerzo mental</span></div>
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">La báscula se mueve — por primera vez en meses</span></div>
+            <div style="display:flex; align-items:flex-start; gap:10px;"><span style="color:#C8956C; font-weight:700; font-size:13px; flex-shrink:0; margin-top:1px;">→</span><span style="font-size:13.5px; color:var(--carbon); line-height:1.55;">La grasa del abdomen empieza a ceder donde antes no cedía</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LO QUE INCLUYE -->
+  <div class="section" style="background:var(--light); border-bottom:1px solid var(--borderL);">
+    <div class="section-inner-900">
+      <div style="text-align:center; margin-bottom:40px;">
+        <div class="section-tag" style="justify-content:center; margin-bottom:12px;"><div style="width:28px;height:2px;background:var(--green);border-radius:1px;"></div><span class="section-tag-text" style="color:var(--green); letter-spacing:0.18em;">Lo que incluye</span><div style="width:28px;height:2px;background:var(--green);border-radius:1px;"></div></div>
+        <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(26px,4vw,42px); font-weight:700; color:var(--carbon); margin-bottom:8px; line-height:1.05;">Todo lo que incluye<br><em style="color:var(--pink); font-style:italic;">BIBA Nivel 1</em></h2>
+        <p style="font-size:13px; color:var(--mutedL);">No es un video de ejercicios. Es un sistema completo de 4 semanas.</p>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px;">
+        <div class="incluye-col">
+          <div class="incluye-head" style="background:var(--carbon);"><span style="font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:700; color:var(--ivory);">El Protocolo BIBA</span></div>
+          <div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px; color:var(--carbon); line-height:1.4;">4 Videos HIIT Progresivos + Masterclasses científicas</span></div><span style="font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:var(--mutedD); white-space:nowrap;">($197)</span></div>
+          <div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px; color:var(--carbon); line-height:1.4;">Sistema de Nutrición + Shopping List + Meal Prep</span></div><span style="font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:var(--mutedD); white-space:nowrap;">($147)</span></div>
+          <div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px; color:var(--carbon); line-height:1.4;">4 Audios de Mañana + 4 Meditaciones Guiadas</span></div><span style="font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:var(--mutedD); white-space:nowrap;">($97)</span></div>
+          <div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px; color:var(--carbon); line-height:1.4;">Audio Nocturno de Regulación del Sistema Nervioso</span></div><span style="font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:var(--mutedD); white-space:nowrap;">($47)</span></div>
+          <div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px; color:var(--carbon); line-height:1.4;">Activadores BIBA por semana + PDF de Suplementos</span></div><span style="font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:var(--mutedD); white-space:nowrap;">($87)</span></div>
+          <div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px; color:var(--carbon); line-height:1.4;">Grupo de Telegram BIBA + Acompañamiento directo</span></div><span style="font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:var(--mutedD); white-space:nowrap;">($127)</span></div>
+          <div class="incluye-row" style="border-bottom:none;"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px; color:var(--carbon); line-height:1.4;">Checklist + Formularios + Contrato de identidad</span></div><span style="font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:var(--mutedD); white-space:nowrap;">($47)</span></div>
+        </div>
+        <div class="incluye-col">
+          <div class="incluye-head" style="background:linear-gradient(135deg,var(--pink),#c4104d);"><span style="font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:700; color:#fff;">🎁 Bonos exclusivos</span></div>
+          <div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--pink);color:#fff;">✓</div><span style="font-size:12.5px; color:var(--carbon); line-height:1.4;">Masterclass "Conviértete en Ella"</span></div><span style="font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:var(--mutedD); white-space:nowrap;">($97)</span></div>
+          <div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--pink);color:#fff;">✓</div><span style="font-size:12.5px; color:var(--carbon); line-height:1.4;">Postres BIBA</span></div><span style="font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:var(--mutedD); white-space:nowrap;">($27)</span></div>
+          <div class="ghost-row"><div class="ghost-bar" style="width:80%; opacity:.35;"></div></div>
+          <div class="ghost-row"><div class="ghost-bar" style="width:70%; opacity:.25;"></div></div>
+          <div class="ghost-row"><div class="ghost-bar" style="width:75%; opacity:.18;"></div></div>
+          <div class="ghost-row"><div class="ghost-bar" style="width:65%; opacity:.12;"></div></div>
+          <div class="ghost-row" style="border-bottom:none;"><div class="ghost-bar" style="width:60%; opacity:.07;"></div></div>
+        </div>
+      </div>
+      <!-- Precio reveal -->
+      <div style="background:var(--white); border-radius:4px; border:1px solid var(--borderL); overflow:hidden;">
+        <div style="height:4px; background:linear-gradient(90deg,var(--green),var(--pink));"></div>
+        <div style="padding:36px 40px; text-align:center;">
+          <p style="font-size:10px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--mutedD); margin-bottom:6px;">Valor total real</p>
+          <p style="font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:700; color:var(--mutedL); text-decoration:line-through; margin-bottom:6px;">$702 USD</p>
+          <p style="font-size:10px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--mutedD); margin-bottom:4px;">Precio regular</p>
+          <p style="font-family:'Cormorant Garamond',serif; font-size:24px; font-weight:700; color:var(--mutedL); text-decoration:line-through; margin-bottom:20px;">$299 USD</p>
+          <p style="font-family:'Cormorant Garamond',serif; font-size:17px; font-style:italic; color:var(--carbon); margin-bottom:24px;">Pero hoy tienes una oportunidad única:</p>
+          <div class="precio-reveal" id="reveal-insulina" onclick="revelar('insulina')">
+            <span style="font-size:13px; color:var(--mutedD); margin-bottom:8px;">Toca para ver tu precio</span>
+            <div class="shimmer"></div>
+          </div>
+          <div><a href="https://soybiba.com" class="cta-btn">Quiero activar BIBA Nivel 1 →</a></div>
+          <p style="font-size:11px; color:var(--mutedD); margin-top:14px;">🔒 Acceso inmediato · Garantía de reembolso · Pago seguro vía Stripe</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TESTIMONIOS -->
+  <div class="section" style="background:var(--light); border-bottom:1px solid var(--borderL);">
+    <div class="section-inner">
+      <div style="text-align:center; margin-bottom:40px;">
+        <div class="section-tag" style="justify-content:center; margin-bottom:14px;"><div class="section-tag-line" style="background:var(--green);"></div><span class="section-tag-text" style="color:var(--green);">Resultados reales</span></div>
+        <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(24px,3.5vw,38px); font-weight:700; color:var(--carbon); line-height:1.1;">Lo que dicen las mujeres<br>que ya <em style="color:var(--pink); font-style:italic;">vivieron BIBA.</em></h2>
+      </div>
+      <div class="grid-3">
+        <div class="testi-card"><div class="testi-top"></div><div style="font-size:16px; color:#f5a623; letter-spacing:2px; margin-bottom:14px;">★★★★★</div><p style="font-size:14px; color:var(--mutedL); line-height:1.75; margin-bottom:14px;">"Yo soy blanco o negro. O hago todo perfecto… o si me como unas papitas siento que ya todo se arruinó. Aquí fue la primera vez que eso no pasó. Cada vez tengo menos antojos, más energía y, sobre todo, ya no siento que estoy fallando."</p><div style="font-size:12px; color:var(--green); font-weight:700; margin-bottom:18px; padding:6px 10px; background:rgba(155,196,32,0.08); border-radius:2px; display:inline-block;">→ Primera vez que rompió el ciclo todo-o-nada.</div><div style="display:flex; align-items:center; gap:10px;"><div style="width:36px;height:36px;border-radius:50%;background:var(--carbon);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--ivory);">P</span></div><div><div style="font-size:13px;font-weight:700;color:var(--carbon);">Paola, 36</div><div style="font-size:11px;color:var(--mutedD);">Había intentado nutriólogas y Ozempic</div></div></div></div>
+        <div class="testi-card"><div class="testi-top"></div><div style="font-size:16px; color:#f5a623; letter-spacing:2px; margin-bottom:14px;">★★★★★</div><p style="font-size:14px; color:var(--mutedL); line-height:1.75; margin-bottom:14px;">"A mí me encantan los hacks. Reducir los picos de glucosa sí que hace la diferencia. Ya no me da el mal del puerco después de comer, no me hincho y tengo mucha más energía. Se me nota hasta en la cara."</p><div style="font-size:12px; color:var(--green); font-weight:700; margin-bottom:18px; padding:6px 10px; background:rgba(155,196,32,0.08); border-radius:2px; display:inline-block;">→ Energía estable. Sin bajones. Sin hinchazón.</div><div style="display:flex; align-items:center; gap:10px;"><div style="width:36px;height:36px;border-radius:50%;background:var(--carbon);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--ivory);">A</span></div><div><div style="font-size:13px;font-weight:700;color:var(--carbon);">Andrea, 39</div><div style="font-size:11px;color:var(--mutedD);">Había intentado retos y gym</div></div></div></div>
+        <div class="testi-card"><div class="testi-top"></div><div style="font-size:16px; color:#f5a623; letter-spacing:2px; margin-bottom:14px;">★★★★★</div><p style="font-size:14px; color:var(--mutedL); line-height:1.75; margin-bottom:14px;">"Al principio me sentía ridícula haciendo tan poquito… pero todo suma. Me siento mucho mejor. Y me encanta que puedo hacerlo incluso cuando estoy de viaje. Sí me veo mejor… pero sobre todo me siento mejor."</p><div style="font-size:12px; color:var(--green); font-weight:700; margin-bottom:18px; padding:6px 10px; background:rgba(155,196,32,0.08); border-radius:2px; display:inline-block;">→ Más resultados con menos esfuerzo.</div><div style="display:flex; align-items:center; gap:10px;"><div style="width:36px;height:36px;border-radius:50%;background:var(--carbon);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--ivory);">L</span></div><div><div style="font-size:13px;font-weight:700;color:var(--carbon);">Lucía, 42</div><div style="font-size:11px;color:var(--mutedD);">Había intentado pilates y keto</div></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIÉN ES CYNTHIA -->
+  <div class="section" style="background:var(--light); border-bottom:1px solid var(--borderL);">
+    <div class="section-inner-sm">
+      <div style="text-align:center; margin-bottom:32px;">
+        <div class="section-tag" style="justify-content:center; margin-bottom:14px;"><div class="section-tag-line" style="background:#C8956C;"></div><span class="section-tag-text" style="color:#C8956C;">Quién está detrás de BIBA</span><div class="section-tag-line" style="background:#C8956C;"></div></div>
+        <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(24px,3.5vw,38px); font-weight:700; color:var(--carbon); margin-bottom:12px; line-height:1.1;">Conoce a <em style="color:#C8956C; font-style:italic;">Cynthia.</em></h2>
+        <p style="font-size:14px; color:var(--mutedL); line-height:1.75; max-width:480px; margin:0 auto;">Health Coach Certificada por IIN y ACE Fitness. 10 años ayudando a mujeres a entender su cuerpo — no a pelearse con él.</p>
+      </div>
+      <div class="vsl-box" style="margin-bottom:24px;">
+        <div class="vsl-glow" style="background:radial-gradient(ellipse at 60% 40%,rgba(200,149,108,0.18),transparent 65%);"></div>
+        <div class="vsl-btn">▶</div>
+        <p class="vsl-label">Video — próximamente</p>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px;">
+        <div style="display:flex;align-items:center;gap:10px;background:var(--white);border-radius:3px;padding:12px 16px;border:1px solid var(--borderL);"><span style="font-size:16px;">🎓</span><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">Health Coach Certificada · IIN</span></div><div style="display:flex;align-items:center;gap:10px;background:var(--white);border-radius:3px;padding:12px 16px;border:1px solid var(--borderL);"><span style="font-size:16px;">🎓</span><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">Certificada · ACE Fitness</div>
+        <div style="display:flex;align-items:center;gap:10px;background:var(--white);border-radius:3px;padding:12px 16px;border:1px solid var(--borderL);"><span style="font-size:16px;">📅</span><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">10 años de experiencia</span></div>
+        
+        <div style="display:flex;align-items:center;gap:10px;background:var(--white);border-radius:3px;padding:12px 16px;border:1px solid var(--borderL);"><span style="font-size:16px;">🌎</span><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">+200 mujeres en el protocolo BIBA</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 COSAS HOY -->
+  <div class="section" style="background:var(--carbon); padding-bottom:64px;">
+    <div class="section-inner-sm">
+      <div class="section-tag"><div class="section-tag-line" style="background:#C8956C;"></div><span class="section-tag-text" style="color:#C8956C;">Empieza hoy</span></div>
+      <h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(22px,3vw,34px); font-weight:700; color:var(--ivory); margin-bottom:8px; line-height:1.1;">3 cosas que puedes hacer <em style="color:#C8956C; font-style:italic;">hoy mismo.</em></h2>
+      <p style="font-size:14px; color:#888; margin-bottom:32px; line-height:1.65;">Sin esperar al protocolo. Sin comprar nada. Estas tres acciones ya tienen efecto en tu bioquímica hoy.</p>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="background:#111; border-radius:3px; padding:22px 24px; border-left:3px solid #C8956C; position:relative;"><div style="position:absolute;top:22px;right:22px;width:28px;height:28px;border-radius:50%;background:rgba(200,149,108,0.15);display:flex;align-items:center;justify-content:center;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#C8956C;">1</span></div><div style="font-size:14px;font-weight:700;color:var(--ivory);margin-bottom:8px;padding-right:36px;line-height:1.4;">Come la fibra y la proteína antes que los carbohidratos en tu próxima comida.</div><p style="font-size:13px;color:#888;line-height:1.65;"><span style="color:#C8956C;font-weight:700;">Por qué: </span>Reduce el pico de glucosa hasta un 73% sin cambiar lo que comes — solo el orden.</p></div>
+        <div style="background:#111; border-radius:3px; padding:22px 24px; border-left:3px solid #C8956C; position:relative;"><div style="position:absolute;top:22px;right:22px;width:28px;height:28px;border-radius:50%;background:rgba(200,149,108,0.15);display:flex;align-items:center;justify-content:center;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#C8956C;">2</span></div><div style="font-size:14px;font-weight:700;color:var(--ivory);margin-bottom:8px;padding-right:36px;line-height:1.4;">Sal a caminar 10 minutos después de comer.</div><p style="font-size:13px;color:#888;line-height:1.65;"><span style="color:#C8956C;font-weight:700;">Por qué: </span>Le das a tus células una vía para usar la glucosa antes de que se guarde como grasa.</p></div>
+        <div style="background:#111; border-radius:3px; padding:22px 24px; border-left:3px solid #C8956C; position:relative;"><div style="position:absolute;top:22px;right:22px;width:28px;height:28px;border-radius:50%;background:rgba(200,149,108,0.15);display:flex;align-items:center;justify-content:center;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#C8956C;">3</span></div><div style="font-size:14px;font-weight:700;color:var(--ivory);margin-bottom:8px;padding-right:36px;line-height:1.4;">Espera 90 minutos después de despertar para tomar tu primer café.</div><p style="font-size:13px;color:#888;line-height:1.65;"><span style="color:#C8956C;font-weight:700;">Por qué: </span>Tu cortisol natural es más alto al despertar — el café en ese momento lo amplifica y agrava la resistencia a insulina.</p></div>
+      </div>
+      <div style="margin-top:36px; text-align:center;">
+        <a href="https://soybiba.com" class="cta-btn">Activar BIBA Nivel 1 → $99 USD</a>
+        <p style="font-size:11px; color:#555; margin-top:14px;">🔒 Acceso inmediato · Garantía de reembolso · Pago seguro vía Stripe</p>
+      </div>
+    </div>
+  </div>
+</div><!-- /perfil-insulina -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     CORTISOL, ESTRÓGENO, TESTOSTERONA
+     (estructura idéntica, datos cambiados)
+═══════════════════════════════════════════════════ -->
+
+<div id="perfil-cortisol" class="perfil-section">
+  <div class="hero" style="background:#181818; border-color:#8B6B8B; text-align:center;">
+    <div class="section-inner">
+      <div class="hero-badge" style="border-color:#8B6B8B44; margin:0 auto 20px;"><span>🔥</span><span class="hero-badge-name" style="color:#8B6B8B;">Perfil de Estrés Crónico</span><span class="hero-badge-sep">·</span><span class="hero-badge-hormona">Cortisol</span></div>
+      <h1>Tu sistema nervioso aprendió a vivir en alerta — y ya no sabe cómo bajar la guardia</h1>
+      <p class="hero-frase" style="color:#8B6B8B;">"No es ansiedad ni carácter. Es cortisol que lleva demasiado tiempo sin apagarse."</p>
+    </div>
+  </div>
+  <div class="section" style="background:#181818; border-bottom:1px solid #1a1a1a; padding-top:48px; padding-bottom:52px;"><div class="section-inner-sm" style="text-align:center;"><p style="font-family:'Cormorant Garamond',serif;font-size:clamp(17px,2.5vw,22px);font-weight:600;color:#fff;line-height:1.4;margin-bottom:28px;max-width:520px;margin-left:auto;margin-right:auto;">Haz clic ahora y descubre por qué tu cuerpo ya no responde como antes… el error #1 que está frenando tu energía y el primer paso simple que puedes tomar hoy para activarla de nuevo.</p><div class="vsl-box"><div class="vsl-glow" style="background:radial-gradient(ellipse at center,rgba(139,107,139,0.18),transparent 70%);"></div><div class="vsl-btn">▶</div><p class="vsl-label">Video VSL — próximamente</p></div><p style="font-size:14px;color:#888;line-height:1.75;max-width:480px;margin:20px auto 0;">En este video descubres por qué tu cuerpo no responde a dietas ni ejercicios… y el primer paso simple que realmente estabiliza tu energía y controla los antojos.</p></div></div>
+  <div class="section" style="background:var(--light); border-bottom:1px solid var(--borderL);"><div class="section-inner-sm"><p style="font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:600; color:#8B6B8B; font-style:italic; margin-bottom:24px; line-height:1.4;">Para ti que ya no recuerdas cuándo fue la última vez que te sentiste tranquila</p><p style="font-size:15px; color:var(--mutedL); line-height:1.8; margin-bottom:18px;">Llegas aquí cansada. No de hoy — de hace meses. Quizás años. Con el cerebro que no se apaga en la noche aunque el cuerpo esté agotado. Con esa reactividad que te sorprende a ti misma: explotas por cosas pequeñas, lloras sin razón clara.</p><p style="font-size:15px; color:var(--mutedL); line-height:1.8; margin-bottom:18px;">Eso tampoco es tu carácter. Es lo que hace el cortisol cuando lleva demasiado tiempo elevado sin bajar. Tu sistema nervioso aprendió a vivir en modo emergencia — y ya no sabe cómo salir de ahí solo.</p><p style="font-size:15px; color:var(--mutedL); line-height:1.8; margin-bottom:0;">No necesitas más fuerza de voluntad. Necesitas que tu biología deje de tratarte como si vivieras en peligro constante. Eso es lo que hace BIBA desde el primer día.</p><p class="firma">— Cynthia Cowan, Health Coach Certificada · IIN · ACE Fitness · 10 años</p></div></div>
+  <div class="section" style="background:var(--white); border-bottom:1px solid var(--borderL);"><div class="section-inner"><div class="section-tag"><div class="section-tag-line" style="background:#8B6B8B;"></div><span class="section-tag-text" style="color:#8B6B8B;">Análisis clínico</span></div><h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(22px,3vw,34px); font-weight:700; color:var(--carbon); margin-bottom:32px; line-height:1.1;">Qué está pasando con tu cortisol</h2><div class="grid-2" style="margin-bottom:24px;"><div class="card-light" style="border-left:3px solid #8B6B8B;"><div style="font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#8B6B8B; margin-bottom:10px;">Qué está pasando</div><p style="font-size:13.5px; color:var(--carbon); line-height:1.75;">El cortisol es la hormona del estrés — diseñada para respuestas de corta duración. Cuando el estrés es crónico, los niveles se mantienen elevados semanas o meses. Eso suprime el sistema inmune, interrumpe el sueño profundo, bloquea la señal de insulina, y compite directamente con la progesterona.</p></div><div class="card-light" style="border-left:3px solid var(--borderL);"><div style="font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:var(--mutedD); margin-bottom:10px;">Por qué ocurre</div><p style="font-size:13.5px; color:var(--carbon); line-height:1.75;">El cortisol elevado sostenido no es un problema de actitud — es una respuesta fisiológica al entorno. El ciclo se auto-alimenta: mal sueño → más cortisol → peor sueño. Sin intervención en el ciclo circadiano y el sistema nervioso, el cuerpo no puede salir solo.</p></div></div><div class="card-white"><div style="font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:var(--mutedD); margin-bottom:16px;">Síntomas más frecuentes</div><div class="sym-grid"><div class="sym-item"><div class="sym-dot" style="background:#8B6B8B;"></div><span style="font-size:13px; color:var(--carbon); line-height:1.5;">Insomnio entre las 2 y 4 am con mente activa</span></div><div class="sym-item"><div class="sym-dot" style="background:#8B6B8B;"></div><span style="font-size:13px; color:var(--carbon); line-height:1.5;">Cansancio al despertar aunque hayas dormido</span></div><div class="sym-item"><div class="sym-dot" style="background:#8B6B8B;"></div><span style="font-size:13px; color:var(--carbon); line-height:1.5;">Irritabilidad o llanto desproporcionado</span></div><div class="sym-item"><div class="sym-dot" style="background:#8B6B8B;"></div><span style="font-size:13px; color:var(--carbon); line-height:1.5;">Dificultad para bajar la guardia o relajarse</span></div><div class="sym-item"><div class="sym-dot" style="background:#8B6B8B;"></div><span style="font-size:13px; color:var(--carbon); line-height:1.5;">Infecciones frecuentes o recuperación lenta</span></div><div class="sym-item"><div class="sym-dot" style="background:#8B6B8B;"></div><span style="font-size:13px; color:var(--carbon); line-height:1.5;">Sensación de estar 'al límite' de forma sostenida</span></div></div></div></div></div>
+  <!-- Ciclo cortisol -->
+  <div class="section" style="background:var(--light); border-bottom:1px solid var(--borderL);"><div class="section-inner-xs"><div style="text-align:center; margin-bottom:40px;"><div class="section-tag" style="justify-content:center; margin-bottom:14px;"><div class="section-tag-line" style="background:#8B6B8B;"></div><span class="section-tag-text" style="color:#8B6B8B;">Por qué es tan difícil romperlo</span><div class="section-tag-line" style="background:#8B6B8B;"></div></div><h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(24px,3.5vw,38px); font-weight:700; color:var(--carbon); margin-bottom:16px; line-height:1.1;">El ciclo del agotamiento.</h2><p style="font-size:14px; color:var(--mutedL); line-height:1.75;">No es falta de voluntad. Es un ciclo de estrés que se reinicia cada noche — y tu sistema nervioso ya no sabe salir solo.</p></div><div id="ciclo-cortisol"></div><div class="quote-box" style="background:var(--white); border-color:#8B6B8B; margin:32px 0 24px;"><span class="quote-mark" style="color:rgba(139,107,139,0.3);">"</span><p style="font-family:'Cormorant Garamond',serif; font-size:clamp(15px,2vw,18px); font-style:italic; color:var(--carbon); line-height:1.75; padding-top:8px;">Intentar cambiar con fuerza de voluntad cuando tu sistema nervioso está en alerta es como conducir con el freno de mano puesto. Gastas el doble de energía y avanzas la mitad.</p></div><div style="text-align:center;"><p style="font-size:14px; color:var(--mutedL); margin-bottom:8px; line-height:1.7;">No es que no tengas ganas. Es que cada día el ciclo te deja con menos.</p><p style="font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:700; color:#8B6B8B;">BIBA rompe esto desde el primer paso.</p></div></div></div>
+  <!-- Lo que cambia cortisol -->
+  <div class="section" style="background:var(--carbon); border-bottom:1px solid #1a1a1a;"><div class="section-inner"><div style="text-align:center; margin-bottom:48px;"><div class="section-tag" style="justify-content:center; margin-bottom:14px;"><div class="section-tag-line" style="background:#8B6B8B;"></div><span class="section-tag-text" style="color:#8B6B8B;">El sistema</span><div class="section-tag-line" style="background:#8B6B8B;"></div></div><h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(24px,3.5vw,40px); font-weight:700; color:var(--ivory); margin-bottom:12px; line-height:1.1;">Lo que cambia con <em style="color:#8B6B8B; font-style:italic;">BIBA.</em></h2><p style="font-size:15px; color:#888; max-width:520px; margin:0 auto; line-height:1.7;">No es un plan de dieta. No es una rutina de ejercicio. Es un sistema de tres capas que trabaja tu biología desde adentro.</p></div><div class="grid-3" style="margin-bottom:40px;"><div class="pilar-card" style="border-color:var(--green);"><div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;"><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--green);letter-spacing:0.1em;">01</span><span style="font-size:20px;">🥗</span></div><div style="font-size:15px;font-weight:700;color:var(--ivory);margin-bottom:6px;line-height:1.3;">Nutrición de Alta Densidad</div><p style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--green);margin-bottom:12px;line-height:1.5;">No quitas alimentos. Añades lo que tu cuerpo necesita.</p><p style="font-size:13px;color:#888;line-height:1.65;">Cada semana incorporas una mejora concreta que reduce antojos, estabiliza energía y baja inflamación sin esfuerzo mental.</p></div><div class="pilar-card" style="border-color:#8B6B8B;"><div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;"><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:#8B6B8B;letter-spacing:0.1em;">02</span><span style="font-size:20px;">⚡</span></div><div style="font-size:15px;font-weight:700;color:var(--ivory);margin-bottom:6px;line-height:1.3;">Activadores Metabólicos</div><p style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:#8B6B8B;margin-bottom:12px;line-height:1.5;">Empiezas con minutos, no con horas.</p><p style="font-size:13px;color:#888;line-height:1.65;">Movimientos cortos diseñados para despertar el metabolismo y dejar al cuerpo trabajando después de terminar.</p></div><div class="pilar-card" style="border-color:var(--pink);"><div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;"><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--pink);letter-spacing:0.1em;">03</span><span style="font-size:20px;">🧠</span></div><div style="font-size:15px;font-weight:700;color:var(--ivory);margin-bottom:6px;line-height:1.3;">Regulación del Sistema Nervioso</div><p style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--pink);margin-bottom:12px;line-height:1.5;">Ningún cuerpo cambia en alerta constante.</p><p style="font-size:13px;color:#888;line-height:1.65;">Bajamos el ruido fisiológico que provoca hambre, cansancio y retención. Tu sistema nervioso aprende a soltar.</p></div></div><div style="background:#0d0d0d;border:1px solid #1f1f1f;border-radius:3px;padding:32px 36px;border-left:3px solid #8B6B8B;"><div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#8B6B8B;margin-bottom:20px;">El efecto acumulativo</div><p style="font-size:14px;color:#888;margin-bottom:24px;line-height:1.7;">Cuando las tres capas trabajan juntas, algo cambia que no habías experimentado antes.</p><div style="display:flex;flex-direction:column;gap:12px;"><div style="display:flex;align-items:flex-start;gap:12px;"><span style="color:#8B6B8B;font-weight:700;font-size:14px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:14px;color:var(--ivory);line-height:1.55;">Tu mente deja de negociar contigo cada mañana</span></div><div style="display:flex;align-items:flex-start;gap:12px;"><span style="color:#8B6B8B;font-weight:700;font-size:14px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:14px;color:var(--ivory);line-height:1.55;">El progreso deja de depender de ti y empieza a ocurrir solo</span></div><div style="display:flex;align-items:flex-start;gap:12px;"><span style="color:#8B6B8B;font-weight:700;font-size:14px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:14px;color:var(--ivory);line-height:1.55;">Cumplir se vuelve más fácil que no cumplir</span></div><div style="display:flex;align-items:flex-start;gap:12px;"><span style="color:#8B6B8B;font-weight:700;font-size:14px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:14px;color:var(--ivory);line-height:1.55;">El físico cambia como consecuencia. No por presión. Por adaptación.</span></div></div></div></div></div>
+  <!-- Protocolo cortisol -->
+  <div class="section" style="background:var(--white); border-bottom:1px solid var(--borderL);">
+    <div class="section-inner">
+      <div style="margin-bottom:48px;"><div class="section-tag"><div class="section-tag-line" style="background:#8B6B8B;"></div><span class="section-tag-text" style="color:#8B6B8B;">El protocolo</span></div><h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(24px,3.5vw,40px); font-weight:700; color:var(--carbon); margin-bottom:12px; line-height:1.05;">Así empieza tu mañana con BIBA</h2><p style="font-size:15px; color:var(--mutedL); line-height:1.75; max-width:560px;">No decides nada al despertar. Todo ya está listo. Sin pensar. Sin decidir. Sin fricción.</p></div>
+      <div style="background:var(--carbon); border-radius:3px; padding:28px 32px; margin-bottom:20px; border-left:3px solid #8B6B8B;"><div style="font-size:11px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#8B6B8B; margin-bottom:14px;">La noche anterior</div><p style="font-size:14px; color:#aaa; margin-bottom:18px; line-height:1.6;">Preparas todo para que mañana solo presiones play.</p><div class="sym-grid"><div style="display:flex;align-items:center;gap:10px;"><div style="width:5px;height:5px;border-radius:50%;background:#8B6B8B;flex-shrink:0;"></div><span style="font-size:13px;color:var(--ivory);">El desayuno listo en el refrigerador</span></div><div style="display:flex;align-items:center;gap:10px;"><div style="width:5px;height:5px;border-radius:50%;background:#8B6B8B;flex-shrink:0;"></div><span style="font-size:13px;color:var(--ivory);">Tu mat en su lugar</span></div><div style="display:flex;align-items:center;gap:10px;"><div style="width:5px;height:5px;border-radius:50%;background:#8B6B8B;flex-shrink:0;"></div><span style="font-size:13px;color:var(--ivory);">El agua en tu mesa de noche</span></div><div style="display:flex;align-items:center;gap:10px;"><div style="width:5px;height:5px;border-radius:50%;background:#8B6B8B;flex-shrink:0;"></div><span style="font-size:13px;color:var(--ivory);">Los suplementos del día listos</span></div><div style="display:flex;align-items:center;gap:10px;"><div style="width:5px;height:5px;border-radius:50%;background:#8B6B8B;flex-shrink:0;"></div><span style="font-size:13px;color:var(--ivory);">Ya viste el ejercicio de la semana</span></div></div></div>
+      <div style="display:flex;flex-direction:column;margin-bottom:40px;"><div class="proto-step" style="border-color:#8B6B8B; background:rgba(139,107,139,0.08);"><div class="proto-icon" style="background:rgba(139,107,139,0.2); border:1.5px solid rgba(139,107,139,0.4);">▶</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="tag-pill" style="background:#8B6B8B;">Play</span><span style="font-size:14px;font-weight:700;color:var(--carbon);">Audio de la semana</span><span style="font-size:11px;color:var(--mutedD);margin-left:auto;font-weight:600;">4–5 min</span></div><p style="font-size:13px;color:var(--mutedL);line-height:1.6;">Celular en modo avión. Tu mente entra en modo acción antes de que el mundo entre.</p></div></div><div class="proto-connector"></div><div class="proto-step" style="border-color:var(--borderL);"><div class="proto-icon" style="background:rgba(200,149,108,0.1);border:1.5px solid rgba(200,149,108,0.2);">🔥</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="font-size:14px;font-weight:700;color:var(--carbon);">Calentamiento</span><span style="font-size:11px;color:var(--mutedD);margin-left:auto;font-weight:600;">5–8 min</span></div><p style="font-size:13px;color:var(--mutedL);line-height:1.6;">Tu cuerpo despierta sin estrés ni cortisol disparado.</p></div></div><div class="proto-connector"></div><div class="proto-step" style="border-color:var(--borderL);"><div class="proto-icon" style="background:rgba(139,107,139,0.1);border:1.5px solid rgba(139,107,139,0.2);">⚡</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="font-size:14px;font-weight:700;color:var(--carbon);">Ejercicio HIIT de la semana</span><span style="font-size:11px;color:var(--mutedD);margin-left:auto;font-weight:600;">5–8 min</span></div><p style="font-size:13px;color:var(--mutedL);line-height:1.6;">Corto, específico, progresivo. Activa tu metabolismo para las horas siguientes.</p></div></div><div class="proto-connector"></div><div class="proto-step" style="border-color:var(--borderL);"><div class="proto-icon" style="background:rgba(74,122,101,0.1);border:1.5px solid rgba(74,122,101,0.2);">🧠</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="font-size:14px;font-weight:700;color:var(--carbon);">Meditación</span><span style="font-size:11px;color:var(--mutedD);margin-left:auto;font-weight:600;">5–8 min</span></div><p style="font-size:13px;color:var(--mutedL);line-height:1.6;">Inmediatamente después del movimiento. Tu sistema nervioso recibe la señal de que puede soltar.</p></div></div><div class="proto-connector"></div><div class="proto-step" style="border-color:var(--green);"><div class="proto-icon" style="background:rgba(155,196,32,0.1);border:1.5px solid rgba(155,196,32,0.25);">🥗</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span class="tag-pill" style="background:var(--green);color:var(--carbon);">Lista</span><span style="font-size:14px;font-weight:700;color:var(--carbon);">Desayuno</span></div><p style="font-size:13px;color:var(--mutedL);line-height:1.6;">Ya estaba listo. Solo lo disfrutas. El día apenas empieza y ya cumpliste contigo.</p></div></div></div>
+      <div style="margin-bottom:20px;"><div style="font-size:11px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--mutedD);margin-bottom:20px;">Cómo crece semana a semana</div><div class="grid-4" style="margin-bottom:16px;"><div class="card-light" style="border-top:3px solid #8B6B8B;"><div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mutedD);margin-bottom:6px;">Semana 1</div><div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:#8B6B8B;margin-bottom:12px;line-height:1;">19 min</div><div style="font-size:11px;color:var(--mutedL);line-height:1.6;">Audio · 4 min<br>Calentamiento · 5 min<br>Ejercicio · 5 min<br>Meditación · 5 min</div></div><div class="card-light" style="border-top:3px solid var(--borderL);"><div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mutedD);margin-bottom:6px;">Semana 2</div><div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--carbon);margin-bottom:12px;line-height:1;">21 min</div><div style="font-size:11px;color:var(--mutedL);line-height:1.6;">Audio · 4 min<br>Calentamiento · 5 min<br>Ejercicio · 6 min<br>Meditación · 6 min</div></div><div class="card-light" style="border-top:3px solid var(--borderL);"><div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mutedD);margin-bottom:6px;">Semana 3</div><div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--carbon);margin-bottom:12px;line-height:1;">23 min</div><div style="font-size:11px;color:var(--mutedL);line-height:1.6;">Audio · 4 min<br>Calentamiento · 5 min<br>Ejercicio · 7 min<br>Meditación · 7 min</div></div><div class="card-light" style="border-top:3px solid var(--borderL);"><div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mutedD);margin-bottom:6px;">Semana 4</div><div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--carbon);margin-bottom:12px;line-height:1;">25 min</div><div style="font-size:11px;color:var(--mutedL);line-height:1.6;">Audio · 4 min<br>Calentamiento · 5 min<br>Ejercicio · 8 min<br>Meditación · 8 min</div></div></div><div class="card-light" style="border-left:3px solid #8B6B8B;padding:16px 22px;"><p style="font-size:13.5px;color:var(--carbon);line-height:1.7;">Empiezas con <strong>19 minutos</strong>. Terminas con <strong>25</strong>. Nunca se siente como un salto. Siempre como el siguiente paso natural.</p></div></div>
+      <div style="background:var(--carbon);border-radius:3px;padding:32px 36px;text-align:center;border-top:3px solid #8B6B8B;"><p style="font-family:'Cormorant Garamond',serif;font-size:clamp(20px,2.5vw,28px);font-weight:700;color:var(--ivory);margin-bottom:8px;line-height:1.2;">Solo presionas play.</p><p style="font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:#8B6B8B;">Y el sistema hace el resto.</p></div>
+    </div>
+  </div>
+  <!-- Cambios cortisol -->
+  <div class="section" style="background:var(--light); border-bottom:1px solid var(--borderL);"><div class="section-inner"><div class="section-tag"><div class="section-tag-line" style="background:#8B6B8B;"></div><span class="section-tag-text" style="color:#8B6B8B;">Lo que vas a notar</span></div><h2 style="font-family:'Cormorant Garamond',serif; font-size:clamp(22px,3vw,34px); font-weight:700; color:var(--carbon); margin-bottom:32px; line-height:1.1;">Cambios reales.<br><em style="color:#8B6B8B; font-style:italic;">En tu cuerpo, tu energía, tu mente.</em></h2><div class="cambios-grid"><div class="card-white" style="border-top:3px solid #8B6B8B;"><div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#8B6B8B;margin-bottom:16px;">Semana 1</div><div style="display:flex;flex-direction:column;gap:10px;"><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">Menos inflamación — ese peso pesado en el abdomen empieza a ceder</span></div><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">Mejor digestión — sin el malestar después de comer</span></div><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">Menos ansiedad — tu sistema nervioso empieza a soltar</span></div><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">Duermes más profundo — y eso cambia todo lo demás</span></div><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">La energía de la mañana regresa antes de que llegue el primer café</span></div><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">La tarde deja de ser un colapso — tienes más para dar en la segunda mitad del día</span></div><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">Hay más espacio entre lo que pasa y cómo reaccionas</span></div></div></div><div class="card-white" style="border-top:3px solid #8B6B8B;"><div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#8B6B8B;margin-bottom:16px;">Mes 1</div><div style="display:flex;flex-direction:column;gap:10px;"><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">Menos antojos por la tarde — el ciclo de glucosa se regula</span></div><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">Más fuerza — tu cuerpo empieza a construir en lugar de sobrevivir</span></div><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">Tu ropa queda diferente — porque la inflamación bajó</span></div><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">Más energía sin depender del café</span></div><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">Empiezas a cumplir sin esfuerzo mental</span></div><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">El cerebro se apaga cuando el cuerpo pide dormir</span></div><div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:#8B6B8B;font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">Sigues teniendo estrés — pero ya no te arrastra</span></div></div></div></div></div></div>
+  <!-- Incluye, Testimonios, Cynthia, 3 cosas cortisol (color swap) -->
+  <div class="section" style="background:var(--light); border-bottom:1px solid var(--borderL);">
+    <div class="section-inner-900">
+      <div style="text-align:center;margin-bottom:40px;"><div class="section-tag" style="justify-content:center;margin-bottom:12px;"><div style="width:28px;height:2px;background:var(--green);border-radius:1px;"></div><span class="section-tag-text" style="color:var(--green);letter-spacing:0.18em;">Lo que incluye</span><div style="width:28px;height:2px;background:var(--green);border-radius:1px;"></div></div><h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(26px,4vw,42px);font-weight:700;color:var(--carbon);margin-bottom:8px;line-height:1.05;">Todo lo que incluye<br><em style="color:var(--pink);font-style:italic;">BIBA Nivel 1</em></h2><p style="font-size:13px;color:var(--mutedL);">No es un video de ejercicios. Es un sistema completo de 4 semanas.</p></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;"><div class="incluye-col"><div class="incluye-head" style="background:var(--carbon);"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--ivory);">El Protocolo BIBA</span></div><div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">4 Videos HIIT Progresivos + Masterclasses científicas</span></div><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--mutedD);white-space:nowrap;">($197)</span></div><div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">Sistema de Nutrición + Shopping List + Meal Prep</span></div><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--mutedD);white-space:nowrap;">($147)</span></div><div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">4 Audios de Mañana + 4 Meditaciones Guiadas</span></div><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--mutedD);white-space:nowrap;">($97)</span></div><div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">Audio Nocturno de Regulación del Sistema Nervioso</span></div><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--mutedD);white-space:nowrap;">($47)</span></div><div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">Activadores BIBA por semana + PDF de Suplementos</span></div><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--mutedD);white-space:nowrap;">($87)</span></div><div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">Grupo de Telegram BIBA + Acompañamiento directo</span></div><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--mutedD);white-space:nowrap;">($127)</span></div><div class="incluye-row" style="border-bottom:none;"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">Checklist + Formularios + Contrato de identidad</span></div><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--mutedD);white-space:nowrap;">($47)</span></div></div><div class="incluye-col"><div class="incluye-head" style="background:linear-gradient(135deg,var(--pink),#c4104d);"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#fff;">🎁 Bonos exclusivos</span></div><div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--pink);color:#fff;">✓</div><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">Masterclass "Conviértete en Ella"</span></div><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--mutedD);white-space:nowrap;">($97)</span></div><div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--pink);color:#fff;">✓</div><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">Postres BIBA</span></div><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--mutedD);white-space:nowrap;">($27)</span></div><div class="ghost-row"><div class="ghost-bar" style="width:80%;opacity:.35;"></div></div><div class="ghost-row"><div class="ghost-bar" style="width:70%;opacity:.25;"></div></div><div class="ghost-row"><div class="ghost-bar" style="width:75%;opacity:.18;"></div></div><div class="ghost-row"><div class="ghost-bar" style="width:65%;opacity:.12;"></div></div><div class="ghost-row" style="border-bottom:none;"><div class="ghost-bar" style="width:60%;opacity:.07;"></div></div></div></div>
+      <div style="background:var(--white);border-radius:4px;border:1px solid var(--borderL);overflow:hidden;"><div style="height:4px;background:linear-gradient(90deg,var(--green),var(--pink));"></div><div style="padding:36px 40px;text-align:center;"><p style="font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--mutedD);margin-bottom:6px;">Valor total real</p><p style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:var(--mutedL);text-decoration:line-through;margin-bottom:6px;">$702 USD</p><p style="font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--mutedD);margin-bottom:4px;">Precio regular</p><p style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--mutedL);text-decoration:line-through;margin-bottom:20px;">$299 USD</p><p style="font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--carbon);margin-bottom:24px;">Pero hoy tienes una oportunidad única:</p><div class="precio-reveal" id="reveal-cortisol" onclick="revelar('cortisol')"><span style="font-size:13px;color:var(--mutedD);margin-bottom:8px;">Toca para ver tu precio</span><div class="shimmer"></div></div><div><a href="https://soybiba.com" class="cta-btn">Quiero activar BIBA Nivel 1 →</a></div><p style="font-size:11px;color:var(--mutedD);margin-top:14px;">🔒 Acceso inmediato · Garantía de reembolso · Pago seguro vía Stripe</p></div></div>
+    </div>
+  </div>
+  <div class="section" style="background:var(--light); border-bottom:1px solid var(--borderL);"><div class="section-inner"><div style="text-align:center;margin-bottom:40px;"><div class="section-tag" style="justify-content:center;margin-bottom:14px;"><div class="section-tag-line" style="background:var(--green);"></div><span class="section-tag-text" style="color:var(--green);">Resultados reales</span></div><h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(24px,3.5vw,38px);font-weight:700;color:var(--carbon);line-height:1.1;">Lo que dicen las mujeres<br>que ya <em style="color:var(--pink);font-style:italic;">vivieron BIBA.</em></h2></div><div class="grid-3"><div class="testi-card"><div class="testi-top"></div><div style="font-size:16px;color:#f5a623;letter-spacing:2px;margin-bottom:14px;">★★★★★</div><p style="font-size:14px;color:var(--mutedL);line-height:1.75;margin-bottom:14px;">"Yo soy blanco o negro. O hago todo perfecto… o si me como unas papitas siento que ya todo se arruinó. Aquí fue la primera vez que eso no pasó. Cada vez tengo menos antojos, más energía y, sobre todo, ya no siento que estoy fallando."</p><div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:18px;padding:6px 10px;background:rgba(155,196,32,0.08);border-radius:2px;display:inline-block;">→ Primera vez que rompió el ciclo todo-o-nada.</div><div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:50%;background:var(--carbon);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--ivory);">P</span></div><div><div style="font-size:13px;font-weight:700;color:var(--carbon);">Paola, 36</div><div style="font-size:11px;color:var(--mutedD);">Había intentado nutriólogas y Ozempic</div></div></div></div><div class="testi-card"><div class="testi-top"></div><div style="font-size:16px;color:#f5a623;letter-spacing:2px;margin-bottom:14px;">★★★★★</div><p style="font-size:14px;color:var(--mutedL);line-height:1.75;margin-bottom:14px;">"A mí me encantan los hacks. Reducir los picos de glucosa sí que hace la diferencia. Ya no me da el mal del puerco después de comer, no me hincho y tengo mucha más energía. Se me nota hasta en la cara."</p><div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:18px;padding:6px 10px;background:rgba(155,196,32,0.08);border-radius:2px;display:inline-block;">→ Energía estable. Sin bajones. Sin hinchazón.</div><div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:50%;background:var(--carbon);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--ivory);">A</span></div><div><div style="font-size:13px;font-weight:700;color:var(--carbon);">Andrea, 39</div><div style="font-size:11px;color:var(--mutedD);">Había intentado retos y gym</div></div></div></div><div class="testi-card"><div class="testi-top"></div><div style="font-size:16px;color:#f5a623;letter-spacing:2px;margin-bottom:14px;">★★★★★</div><p style="font-size:14px;color:var(--mutedL);line-height:1.75;margin-bottom:14px;">"Al principio me sentía ridícula haciendo tan poquito… pero todo suma. Me siento mucho mejor. Y me encanta que puedo hacerlo incluso cuando estoy de viaje."</p><div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:18px;padding:6px 10px;background:rgba(155,196,32,0.08);border-radius:2px;display:inline-block;">→ Más resultados con menos esfuerzo.</div><div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:50%;background:var(--carbon);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--ivory);">L</span></div><div><div style="font-size:13px;font-weight:700;color:var(--carbon);">Lucía, 42</div><div style="font-size:11px;color:var(--mutedD);">Había intentado pilates y keto</div></div></div></div></div></div></div>
+  <div class="section" style="background:var(--light); border-bottom:1px solid var(--borderL);"><div class="section-inner-sm"><div style="text-align:center;margin-bottom:32px;"><div class="section-tag" style="justify-content:center;margin-bottom:14px;"><div class="section-tag-line" style="background:#8B6B8B;"></div><span class="section-tag-text" style="color:#8B6B8B;">Quién está detrás de BIBA</span><div class="section-tag-line" style="background:#8B6B8B;"></div></div><h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(24px,3.5vw,38px);font-weight:700;color:var(--carbon);margin-bottom:12px;line-height:1.1;">Conoce a <em style="color:#8B6B8B;font-style:italic;">Cynthia.</em></h2><p style="font-size:14px;color:var(--mutedL);line-height:1.75;max-width:480px;margin:0 auto;">Health Coach Certificada por IIN y ACE Fitness. 10 años ayudando a mujeres a entender su cuerpo — no a pelearse con él.</p></div><div class="vsl-box" style="margin-bottom:24px;"><div class="vsl-glow" style="background:radial-gradient(ellipse at 60% 40%,rgba(139,107,139,0.18),transparent 65%);"></div><div class="vsl-btn">▶</div><p class="vsl-label">Video — próximamente</p></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;"><div style="display:flex;align-items:center;gap:10px;background:var(--white);border-radius:3px;padding:12px 16px;border:1px solid var(--borderL);"><span style="font-size:16px;">🎓</span><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">Health Coach Certificada · IIN</span></div><div style="display:flex;align-items:center;gap:10px;background:var(--white);border-radius:3px;padding:12px 16px;border:1px solid var(--borderL);"><span style="font-size:16px;">🎓</span><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">Certificada · ACE Fitness</div><div style="display:flex;align-items:center;gap:10px;background:var(--white);border-radius:3px;padding:12px 16px;border:1px solid var(--borderL);"><span style="font-size:16px;">📅</span><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">10 años de experiencia</span></div><div style="display:flex;align-items:center;gap:10px;background:var(--white);border-radius:3px;padding:12px 16px;border:1px solid var(--borderL);"><span style="font-size:16px;">🌎</span><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">+200 mujeres en el protocolo BIBA</span></div></div></div></div>
+  <div class="section" style="background:var(--carbon); padding-bottom:64px;"><div class="section-inner-sm"><div class="section-tag"><div class="section-tag-line" style="background:#8B6B8B;"></div><span class="section-tag-text" style="color:#8B6B8B;">Empieza hoy</span></div><h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(22px,3vw,34px);font-weight:700;color:var(--ivory);margin-bottom:8px;line-height:1.1;">3 cosas que puedes hacer <em style="color:#8B6B8B;font-style:italic;">hoy mismo.</em></h2><p style="font-size:14px;color:#888;margin-bottom:32px;line-height:1.65;">Sin esperar al protocolo. Sin comprar nada. Estas tres acciones ya tienen efecto en tu bioquímica hoy.</p><div style="display:flex;flex-direction:column;gap:16px;"><div style="background:#111;border-radius:3px;padding:22px 24px;border-left:3px solid #8B6B8B;position:relative;"><div style="position:absolute;top:22px;right:22px;width:28px;height:28px;border-radius:50%;background:rgba(139,107,139,0.15);display:flex;align-items:center;justify-content:center;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#8B6B8B;">1</span></div><div style="font-size:14px;font-weight:700;color:var(--ivory);margin-bottom:8px;padding-right:36px;line-height:1.4;">No revises el teléfono los primeros 10 minutos después de despertar.</div><p style="font-size:13px;color:#888;line-height:1.65;"><span style="color:#8B6B8B;font-weight:700;">Por qué: </span>Las notificaciones activan el eje de estrés antes de que tu cortisol matutino haya terminado su pico natural.</p></div><div style="background:#111;border-radius:3px;padding:22px 24px;border-left:3px solid #8B6B8B;position:relative;"><div style="position:absolute;top:22px;right:22px;width:28px;height:28px;border-radius:50%;background:rgba(139,107,139,0.15);display:flex;align-items:center;justify-content:center;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#8B6B8B;">2</span></div><div style="font-size:14px;font-weight:700;color:var(--ivory);margin-bottom:8px;padding-right:36px;line-height:1.4;">Sal a luz natural en los primeros 30 minutos del día — aunque sean 3 minutos afuera.</div><p style="font-size:13px;color:#888;line-height:1.65;"><span style="color:#8B6B8B;font-weight:700;">Por qué: </span>La luz solar es la señal más potente para sincronizar tu ritmo circadiano y que el cortisol baje en el momento correcto.</p></div><div style="background:#111;border-radius:3px;padding:22px 24px;border-left:3px solid #8B6B8B;position:relative;"><div style="position:absolute;top:22px;right:22px;width:28px;height:28px;border-radius:50%;background:rgba(139,107,139,0.15);display:flex;align-items:center;justify-content:center;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:#8B6B8B;">3</span></div><div style="font-size:14px;font-weight:700;color:var(--ivory);margin-bottom:8px;padding-right:36px;line-height:1.4;">Esta noche cena sin pantallas 30 minutos antes de dormir.</div><p style="font-size:13px;color:#888;line-height:1.65;"><span style="color:#8B6B8B;font-weight:700;">Por qué: </span>La luz azul bloquea la melatonina y mantiene el sistema nervioso en alerta cuando debería estar entrando en recuperación.</p></div></div><div style="margin-top:36px;text-align:center;"><a href="https://soybiba.com" class="cta-btn">Activar BIBA Nivel 1 → $99 USD</a><p style="font-size:11px;color:#555;margin-top:14px;">🔒 Acceso inmediato · Garantía de reembolso · Pago seguro vía Stripe</p></div></div></div>
+</div><!-- /perfil-cortisol -->
+
+
+<!-- ESTRÓGENO y TESTOSTERONA siguen la misma estructura. Por brevedad usamos JS para generarlos desde data -->
+<div id="perfil-estrogeno" class="perfil-section"></div>
+<div id="perfil-testosterona" class="perfil-section"></div>
+
+
+
+</div>
+<script>
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const PERFILES_META = {
+  insulina:    { emoji: '⚡', nombre: 'Perfil Metabólico',      hormona: 'Insulina',      color: '#C8956C' },
+  cortisol:    { emoji: '🔥', nombre: 'Perfil Estrés Crónico',  hormona: 'Cortisol',      color: '#8B6B8B' },
+  estrogeno:   { emoji: '🌊', nombre: 'Perfil Hormonal',        hormona: 'Estrógeno',     color: '#4A7A65' },
+  testosterona:{ emoji: '💪', nombre: 'Perfil de Vitalidad',    hormona: 'Testosterona',  color: '#8B7A4A' },
+};
+
+const PERFILES_COPY = {
+  insulina: {
+    titulo: 'Tu metabolismo lleva tiempo trabajando en tu contra',
+    frase: 'Tu cuerpo no está roto. Está siguiendo instrucciones equivocadas — y eso se puede cambiar.',
+    intro: 'Haces lo correcto. Cuidas lo que comes, intentas moverte, te esfuerzas. Y aun así el abdomen no baja, la báscula no se mueve, y a las 4 de la tarde tu cerebro exige azúcar como si llevaras días sin comer. No es debilidad. Es que tu insulina perdió su señal.',
+    sintomas: ['El abdomen que crece durante el día aunque hayas comido bien','La báscula que no se mueve a pesar de todo tu esfuerzo','El crash inevitable de la tarde que te pide azúcar o café','La grasa abdominal que resiste mientras el resto responde'],
+  },
+  cortisol: {
+    titulo: 'Tu sistema nervioso lleva demasiado tiempo en alerta máxima',
+    frase: 'No es que seas ansiosa o intensa. Es que tu biología aprendió que el mundo es una emergencia.',
+    intro: 'Te despiertas cansada. Te acuestas con el cerebro encendido. Reaccionas con una intensidad que te sorprende a ti misma. Tu cuerpo no está siendo dramático — está ejecutando un protocolo de supervivencia que ya no sabe cómo apagar.',
+    sintomas: ['Despertar con la mente en carrera a mitad de la noche','Amanecer agotada antes de que empiece el día','Reacciones desproporcionadas que te sorprenden','El cerebro que no puede soltar el día por las noches'],
+  },
+  estrogeno: {
+    titulo: 'Tus hormonas femeninas perdieron su ritmo natural',
+    frase: 'Lo que sientes no es "ser hormonal". Es una señal real de tu biología pidiendo equilibrio.',
+    intro: 'Hay semanas donde eres tú, y semanas donde no te reconoces. El ciclo manda en tu humor, en tu cuerpo, en tu energía. Los periodos se pusieron peores. La hinchazón aparece sin aviso. No estás exagerando — tu estrógeno y progesterona están en conversación y algo en esa conversación se rompió.',
+    sintomas: ['Cambios de humor que te sorprenden a ti misma','Periodos que se volvieron más intensos o irregulares','Días donde el ciclo literalmente controla tu vida','Bochornos o sensibilidad que no debería estar ahí'],
+  },
+  testosterona: {
+    titulo: 'Tu energía vital está en mínimos históricos',
+    frase: 'No es depresión. No es pereza. Es que tu testosterona —sí, la tuya— cayó en silencio.',
+    intro: 'Haces lo que tienes que hacer. Cumples. Pero algo se apagó. Los proyectos que antes te emocionaban ahora se sienten neutros. El ejercicio no da resultados. El deseo sexual prácticamente desapareció. No hay una razón emocional que lo explique — y eso es exactamente la señal.',
+    sintomas: ['La chispa que desapareció sin razón emocional clara','El cuerpo que ya no responde al ejercicio como antes','La falta de iniciativa que no reconoces como tuya','El deseo que se fue y no sabes cuándo volvió'],
+  },
+};
+
+// Colores por hormona (para highlight de opción seleccionada)
+const COLORES_H = { insulina:'#C8956C', cortisol:'#8B6B8B', estrogeno:'#4A7A65', testosterona:'#8B7A4A' };
+
+const QUESTIONS = [
+
+  // ── ANCLA (tiebreaker, sin puntaje) ──────────────────────────────────────────
+  { id:'ancla', tipo:'ancla', seccionLabel:'Tu Perfil', seccionColor:'#888880',
+    texto:'¿Qué es lo que más quisieras cambiar en los próximos 90 días?',
+    opciones:[
+      { label:'Bajar de peso y desinflamarme',         hormona:'insulina' },
+      { label:'Tener más energía y dormir bien',        hormona:'cortisol' },
+      { label:'Equilibrar mis hormonas y mi ciclo',     hormona:'estrogeno' },
+      { label:'Recuperar mi motivación y mi fuerza',   hormona:'testosterona' }
+    ]
+  },
+
+  // ── CORE (+3 pts) ─────────────────────────────────────────────────────────────
+  { id:'c1', tipo:'core', seccionLabel:'Energía', seccionColor:'#C8956C',
+    texto:'Tu energía durante el día se siente más como...',
+    opciones:[
+      { label:'Una montaña rusa: tengo picos y caídas claras, especialmente en la tarde',                    hormona:'insulina' },
+      { label:'Completamente dependiente de mi ciclo — hay semanas donde simplemente no tengo nada',          hormona:'estrogeno' },
+      { label:'Agotada en la mañana pero "acelerada" en la noche, cuando debería estar descansando',          hormona:'cortisol' },
+      { label:'Plana y estancada todo el día — no hay caídas porque nunca hubo subida',                       hormona:'testosterona' }
+    ]
+  },
+
+  { id:'c2', tipo:'core', seccionLabel:'Descanso', seccionColor:'#8B6B8B',
+    texto:'¿Cómo es tu descanso nocturno?',
+    opciones:[
+      { label:'Duermo, pero amanezco con pesadez y sin sensación de haber descansado de verdad',              hormona:'insulina' },
+      { label:'Mi sueño empeora notablemente en los días previos a mi periodo',                                hormona:'estrogeno' },
+      { label:'Mi mente no se apaga — doy vueltas o me despierto en la madrugada sin razón',                  hormona:'cortisol' },
+      { label:'Duermo bien en horas, pero amanezco sin energía ni vitalidad',                                  hormona:'testosterona' }
+    ]
+  },
+
+  { id:'c3', tipo:'core', seccionLabel:'Metabolismo', seccionColor:'#C8956C',
+    texto:'Después de comer, especialmente carbohidratos, ¿cómo te sientes?',
+    opciones:[
+      { label:'Bajón de energía inmediato y antojo de algo dulce al rato',                                    hormona:'insulina' },
+      { label:'Hinchada o inflamada casi de inmediato, aunque no haya comido mucho',                          hormona:'estrogeno' },
+      { label:'Cuerpo cansado, pero mente todavía activa y alerta',                                           hormona:'cortisol' },
+      { label:'Sin cambio real de energía — una sensación neutra o de debilidad física',                      hormona:'testosterona' }
+    ]
+  },
+
+  { id:'c4', tipo:'core', seccionLabel:'Tu Cuerpo', seccionColor:'#8B7A4A',
+    texto:'¿Dónde notas más cambios o acumulación en tu cuerpo?',
+    opciones:[
+      { label:'Abdomen y cintura — esa zona no baja aunque lo demás responda',                                hormona:'insulina' },
+      { label:'Caderas, piernas o retención de líquidos generalizada',                                         hormona:'estrogeno' },
+      { label:'Abdomen alto y espalda — siento que el estrés se me va directo ahí',                           hormona:'cortisol' },
+      { label:'Pérdida de firmeza y tono general — el cuerpo se siente diferente sin razón clara',             hormona:'testosterona' }
+    ]
+  },
+
+  { id:'c5', tipo:'core', seccionLabel:'Antojos', seccionColor:'#C8956C',
+    texto:'Cuando te dan antojos, ¿cómo son exactamente?',
+    opciones:[
+      { label:'Específicos de azúcar, pan o harinas — y son irresistibles',                                   hormona:'insulina' },
+      { label:'Vienen junto con sensibilidad en los senos o irritabilidad premenstrual',                       hormona:'estrogeno' },
+      { label:'Necesito algo salado, crujiente o café — como para seguir funcionando',                        hormona:'cortisol' },
+      { label:'No es un antojo real — es una falta de energía vital que intento llenar con algo',              hormona:'testosterona' }
+    ]
+  },
+
+  { id:'c6', tipo:'core', seccionLabel:'Mente', seccionColor:'#8B6B8B',
+    texto:'¿Cómo describirías tu capacidad de enfoque y ejecución hoy?',
+    opciones:[
+      { label:'Neblina mental: mi cerebro está lento y me cuesta concentrarme en una sola cosa',               hormona:'insulina' },
+      { label:'Muy reactiva: mis emociones están a flor de piel y me distraen o me paralizan',                 hormona:'estrogeno' },
+      { label:'Hiper-foco ansioso: puedo trabajar, pero es imposible desconectar cuando termino',              hormona:'cortisol' },
+      { label:'Sin impulso: no es que no pueda concentrarme — es que no encuentro el motor para empezar',      hormona:'testosterona' }
+    ]
+  },
+
+  { id:'c7', tipo:'core', seccionLabel:'Tu Proceso', seccionColor:'#888880',
+    texto:'Si pudieras definir qué es lo que más te detiene hoy, ¿qué dirías?',
+    opciones:[
+      { label:'Siento que mi metabolismo está atascado y no procesa bien lo que como',                        hormona:'insulina' },
+      { label:'Siento que mi cuerpo es una montaña rusa de cambios físicos cada mes',                          hormona:'estrogeno' },
+      { label:'Siento que el estrés y el ritmo de vida me tienen en modo supervivencia constante',              hormona:'cortisol' },
+      { label:'Siento que perdí la vitalidad y la fuerza que me caracterizaban — y no sé cuándo fue',          hormona:'testosterona' }
+    ]
+  },
+
+  // ── CONTEXTO (+1 pt) ──────────────────────────────────────────────────────────
+  { id:'cx1', tipo:'cx', seccionLabel:'Energía', seccionColor:'#C8956C',
+    texto:'¿Cómo te sientes justo al despertar?',
+    opciones:[
+      { label:'Bien, pero la energía cae poco después de que empieza el día',                                  hormona:'insulina' },
+      { label:'Con la cara, ojos o manos hinchadas — me toma tiempo desinflarme',                              hormona:'estrogeno' },
+      { label:'Cansada, como si no hubiera dormido, aunque hayan sido 8 horas',                                hormona:'cortisol' },
+      { label:'Sin motor — me falta el impulso interno para arrancar',                                         hormona:'testosterona' }
+    ]
+  },
+
+  { id:'cx2', tipo:'cx', seccionLabel:'Movimiento', seccionColor:'#8B7A4A',
+    texto:'¿Cómo te sientes respecto al ejercicio?',
+    opciones:[
+      { label:'Lo hago pero no veo cambios en mi cuerpo aunque sea constante',                                 hormona:'insulina' },
+      { label:'A veces termino más inflamada que antes de empezar',                                            hormona:'estrogeno' },
+      { label:'Me drena por completo — tardo días en recuperarme de algo moderado',                            hormona:'cortisol' },
+      { label:'Me falta fuerza y resistencia comparado con lo que era antes',                                   hormona:'testosterona' }
+    ]
+  },
+
+  { id:'cx3', tipo:'cx', seccionLabel:'Nutrición', seccionColor:'#C8956C',
+    texto:'¿Cómo describirías tu relación con la comida últimamente?',
+    opciones:[
+      { label:'Antojos constantes que no me dejan tranquila aunque haya comido',                               hormona:'insulina' },
+      { label:'Cambia radicalmente según el día del mes — es impredecible',                                    hormona:'estrogeno' },
+      { label:'Emocional — como por ansiedad, estrés o para calmarme',                                        hormona:'cortisol' },
+      { label:'Desinterés — perdí el placer por la comida, me da casi lo mismo',                               hormona:'testosterona' }
+    ]
+  },
+
+  { id:'cx4', tipo:'cx', seccionLabel:'Emociones', seccionColor:'#8B6B8B',
+    texto:'En el plano emocional, ¿qué estado predomina más en tu día a día?',
+    opciones:[
+      { label:'Piloto automático — funciono, cumplo, pero sin claridad ni presencia real',                     hormona:'insulina' },
+      { label:'Hipersensibilidad — lloro sin razón o siento que mis emociones me superan',                    hormona:'estrogeno' },
+      { label:'Rumiación — mi mente repasa pendientes y preocupaciones sin parar',                             hormona:'cortisol' },
+      { label:'Indiferencia — lo que antes me emocionaba ya no me mueve',                                      hormona:'testosterona' }
+    ]
+  },
+
+  { id:'cx5', tipo:'cx', seccionLabel:'Estrés', seccionColor:'#8B6B8B',
+    texto:'¿Cómo reaccionas ante un momento de estrés?',
+    opciones:[
+      { label:'Busco comida para reconfortarme',                                                               hormona:'insulina' },
+      { label:'Mi cuerpo se infla casi de inmediato',                                                          hormona:'estrogeno' },
+      { label:'Me acelero, me da ansiedad o siento el pecho apretado',                                         hormona:'cortisol' },
+      { label:'Me apago — pierdo las ganas de seguir con lo que estaba haciendo',                              hormona:'testosterona' }
+    ]
+  },
+
+  { id:'cx6', tipo:'cx', seccionLabel:'Señales', seccionColor:'#4A7A65',
+    texto:'¿Has notado cambios en tu piel o cabello?',
+    opciones:[
+      { label:'Brotes o piel grasa relacionados con lo que como',                                              hormona:'insulina' },
+      { label:'Cambios drásticos según mi fase del ciclo mensual',                                             hormona:'estrogeno' },
+      { label:'Piel opaca, ojeras marcadas o aspecto de cansancio constante',                                  hormona:'cortisol' },
+      { label:'Piel más fina, seca, o pérdida de densidad en el cabello o cejas',                              hormona:'testosterona' }
+    ]
+  },
+
+  { id:'cx7', tipo:'cx', seccionLabel:'Hambre', seccionColor:'#C8956C',
+    texto:'¿Cómo es tu sensación de hambre real?',
+    opciones:[
+      { label:'Voraz — nunca me siento realmente satisfecha',                                                  hormona:'insulina' },
+      { label:'Variable — mucha hambre a veces, otras nada, según el ciclo',                                   hormona:'estrogeno' },
+      { label:'Hambre por nervios o estrés — no es hambre física, es ansiedad',                                hormona:'cortisol' },
+      { label:'Muy baja — se me olvida comer y no lo extraño',                                                 hormona:'testosterona' }
+    ]
+  },
+
+  { id:'cx8', tipo:'cx', seccionLabel:'Digestión', seccionColor:'#4A7A65',
+    texto:'¿Notas que tu digestión cambia según tu estado?',
+    opciones:[
+      { label:'Digestiones pesadas o lentas especialmente después de carbohidratos',                           hormona:'insulina' },
+      { label:'Distensión abdominal casi constante o que empeora con el ciclo',                                hormona:'estrogeno' },
+      { label:'El estrés me cierra el estómago o me genera molestias digestivas',                              hormona:'cortisol' },
+      { label:'Metabolismo excesivamente lento — siento que todo tarda el doble',                              hormona:'testosterona' }
+    ]
+  },
+
+  { id:'cx9', tipo:'cx', seccionLabel:'Tu Proceso', seccionColor:'#888880',
+    texto:'¿Qué es lo que más te frustra de tu proceso hoy?',
+    opciones:[
+      { label:'No bajar grasa abdominal aunque esté haciendo todo bien',                                       hormona:'insulina' },
+      { label:'Sentirme diferente e hinchada de una semana a otra sin control',                                 hormona:'estrogeno' },
+      { label:'No poder relajarme ni desconectar aunque quiera',                                               hormona:'cortisol' },
+      { label:'No tener energía ni para empezar a cuidarme como quisiera',                                     hormona:'testosterona' }
+    ]
+  },
+
+  { id:'cx10', tipo:'cx', seccionLabel:'Peso', seccionColor:'#C8956C',
+    texto:'¿Cómo describirías la resistencia de tu cuerpo a bajar de peso?',
+    opciones:[
+      { label:'Bajo de cara y brazos pero mi abdomen no se entera de la dieta',                                hormona:'insulina' },
+      { label:'Mi peso sube y baja 1–2 kilos de un día a otro por retención de líquidos',                     hormona:'estrogeno' },
+      { label:'Cualquier semana con poco sueño o estrés borra todo mi avance',                                 hormona:'cortisol' },
+      { label:'Mi cuerpo no reacciona a nada — el peso no se mueve y pierdo firmeza',                          hormona:'testosterona' }
+    ]
+  },
+
+  { id:'cx11', tipo:'cx', seccionLabel:'Señales', seccionColor:'#4A7A65',
+    texto:'¿Cuál de estas señales físicas reconoces más en tu cuerpo?',
+    opciones:[
+      { label:'Piel oscurecida en cuello o axilas, o hambre constante aunque haya comido',                    hormona:'insulina' },
+      { label:'Periodos dolorosos, abundantes o bochornos de calor sin razón aparente',                        hormona:'estrogeno' },
+      { label:'Tensión en hombros o mandíbula, o ciclo que se altera con el trabajo',                          hormona:'cortisol' },
+      { label:'Menos fuerza física o recuperación lenta después de ejercicio',                                 hormona:'testosterona' }
+    ]
+  },
+
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentQ = 0;
+let respuestas = {}; // id -> val
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const answered = Object.keys(respuestas).length;
+  const pct = Math.round((answered / QUESTIONS.length) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+// ── QUIZ FLOW ─────────────────────────────────────────────────────────────────
+function startQuiz() {
+  currentQ = 0;
+  respuestas = {};
+  showScreen('screen-question');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+
+  // Emojis por categoría
+  const EMOJIS = {
+    'Metabolismo':'⚡', 'Estrés':'🔥', 'Vitalidad':'💪', 'Hormonas':'🌊',
+    'Energía':'⚡', 'Descanso':'🌙', 'Antojos':'✨', 'Mente':'🧠',
+    'Movimiento':'💪', 'Nutrición':'🥗', 'Emociones':'🌊', 'Señales':'🔍',
+    'Hambre':'⚡', 'Digestión':'🌿', 'Peso':'⚖️', 'Tu Proceso':'🔥',
+    'Tu Cuerpo':'🌊', 'Tu Perfil':'✨'
+  };
+  const emoji = EMOJIS[q.seccionLabel] || '';
+  const labelText = emoji ? emoji + ' ' + q.seccionLabel.toUpperCase() : q.seccionLabel.toUpperCase();
+
+  document.getElementById('q-section-label').textContent = labelText;
+  document.getElementById('q-section-dot').style.background = q.seccionColor;
+  document.getElementById('q-section-tag').style.color = q.seccionColor;
+  document.getElementById('q-num').textContent = currentQ + 1;
+  document.getElementById('q-total').textContent = QUESTIONS.length;
+
+  // Mostrar/ocultar botón Anterior
+  const backBtn = document.getElementById('q-back-btn');
+  backBtn.style.display = currentQ > 0 ? 'inline-flex' : 'none';
+
+  document.getElementById('q-text').textContent = q.texto;
+
+  const optsEl = document.getElementById('q-options');
+  optsEl.innerHTML = '';
+
+  // Construir lista con "ninguna" en posición 3 (índice 2) — solo en preguntas no-ancla
+  const opciones = [...q.opciones];
+  const insertNinguna = q.tipo !== 'ancla';
+  const NINGUNA_IDX = 2; // entre la 2da y 3ra opción hormonal
+
+  let renderedHormonales = 0;
+  let ningunaMostrada = false;
+
+  const renderOpcion = (op, i) => {
+    const hormona = op.hormona || null;
+    const color = hormona ? COLORES_H[hormona] : q.seccionColor;
+    const saved = respuestas[q.id];
+    const isSelected = saved !== undefined && saved.idx === i;
+    const div = document.createElement('div');
+    div.className = 'q-option perfil-opt' + (isSelected ? ' selected' : '');
+    div.style.setProperty('--option-color', color);
+    div.innerHTML = `<div class="q-option-text">${op.label}</div>`;
+    div.onclick = () => selectOpcion(i, op, div, q.id);
+    optsEl.appendChild(div);
+  };
+
+  const renderNinguna = () => {
+    const saved = respuestas[q.id];
+    const isSelected = saved !== undefined && saved.ninguna === true;
+    const div = document.createElement('div');
+    div.className = 'q-option ninguna-opt' + (isSelected ? ' selected' : '');
+    div.style.setProperty('--option-color', '#888880');
+    div.innerHTML = `<div class="q-option-text">Me identifico un poco con varias... pero ninguna al 100%</div>`;
+    div.onclick = () => selectNinguna(div, q.id);
+    optsEl.appendChild(div);
+    ningunaMostrada = true;
+  };
+
+  opciones.forEach((op, i) => {
+    if (insertNinguna && !ningunaMostrada && renderedHormonales === NINGUNA_IDX) {
+      renderNinguna();
+    }
+    renderOpcion(op, i);
+    renderedHormonales++;
+  });
+  // Por si tiene menos de 3 opciones hormonales
+  if (insertNinguna && !ningunaMostrada) renderNinguna();
+}
+
+function selectOpcion(idx, op, el, qId) {
+  respuestas[qId] = { idx, hormona: op.hormona || null, ninguna: false };
+  document.querySelectorAll('#q-options .q-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  updateProgress();
+  const aviso = document.getElementById('ninguna-aviso');
+  if (aviso) aviso.remove();
+  setTimeout(nextQuestion, 320);
+}
+
+function selectNinguna(el, qId) {
+  respuestas[qId] = { idx: null, hormona: null, ninguna: true };
+  document.querySelectorAll('#q-options .q-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  updateProgress();
+
+  // Contar ningunitas consecutivas
+  let consecutivas = 0;
+  for (let i = currentQ; i >= 0; i--) {
+    const r = respuestas[QUESTIONS[i].id];
+    if (r && r.ninguna) consecutivas++;
+    else break;
+  }
+
+  if (consecutivas >= 3) {
+    let aviso = document.getElementById('ninguna-aviso');
+    if (!aviso) {
+      aviso = document.createElement('p');
+      aviso.id = 'ninguna-aviso';
+      aviso.style.cssText = 'font-size:12px;color:var(--pink);text-align:center;margin-top:12px;line-height:1.6;animation:fadeUp 0.3s ease both;';
+      aviso.textContent = 'Elige la opción que más se acerque, aunque no sea perfecta — el quiz funciona mejor así. 💡';
+      document.getElementById('q-options').insertAdjacentElement('afterend', aviso);
+    }
+    setTimeout(nextQuestion, 700);
+  } else {
+    const aviso = document.getElementById('ninguna-aviso');
+    if (aviso) aviso.remove();
+    setTimeout(nextQuestion, 320);
+  }
+}
+
+function prevQuestion() {
+  if (currentQ > 0) {
+    currentQ--;
+    showScreen('screen-question');
+    renderQuestion();
+  }
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= QUESTIONS.length) {
+    showScreen('screen-email');
+    document.getElementById('input-nombre').focus();
+  } else {
+    showScreen('screen-question');
+    renderQuestion();
+  }
+}
+
+// ── EMAIL ─────────────────────────────────────────────────────────────────────
+function submitEmail() {
+  const nombre = document.getElementById('input-nombre').value.trim();
+  const email  = document.getElementById('input-email').value.trim();
+  if (!nombre || !email) {
+    document.getElementById('input-nombre').style.borderColor = nombre ? '' : 'var(--pink)';
+    document.getElementById('input-email').style.borderColor  = email  ? '' : 'var(--pink)';
+    return;
+  }
+  
+  // Calcular perfil dominante
+  const scores   = calcularPerfil();
+  const ranking  = ordenarPerfiles(scores);
+  const dominante = ranking[0];
+  
+  // Tags para Make.com
+  const tagMap = {
+    insulina: 'Perfil_Insulina',
+    cortisol: 'Perfil_Cortisol',
+    estrogeno: 'Perfil_Estrogeno',
+    testosterona: 'Perfil_Testosterona'
+  };
+  
+  // Enviar a Make.com
+  fetch('https://hook.us2.make.com/ao0wnjpcuq5vcobxb15kvg8j38d1', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      first_name: nombre,
+      email: email,
+      hormone_profile: tagMap[dominante]
+    })
+  })
+  .then(() => {
+    console.log('✅ Datos enviados a Make.com');
+  })
+  .catch(error => {
+    console.error('⚠️ Error al enviar a Make.com:', error);
+  });
+  
+  document.getElementById('progress-bar').style.width = '100%';
+  showResult(nombre);
+}
+
+// ── SCORING ───────────────────────────────────────────────────────────────────
+function calcularPerfil() {
+  const scores = { insulina:0, cortisol:0, estrogeno:0, testosterona:0 };
+  const ptsMap  = { core:3, cx:1, ancla:0 };
+
+  QUESTIONS.forEach(q => {
+    const r = respuestas[q.id];
+    if (!r || r.ninguna || !r.hormona) return; // ninguna no suma
+    const pts = ptsMap[q.tipo] || 0;
+    scores[r.hormona] += pts;
+  });
+
+  // Tiebreaker: ancla suma +1 al hormona elegida
+  const anclaR = respuestas['ancla'];
+  if (anclaR && anclaR.hormona) scores[anclaR.hormona] += 1;
+
+  return scores;
+}
+
+function ordenarPerfiles(scores) {
+  const anclaR   = respuestas['ancla'];
+  const goalH    = anclaR ? anclaR.hormona : null;
+  const perfiles = ['insulina','cortisol','estrogeno','testosterona'];
+  return perfiles.sort((a, b) => {
+    if (scores[b] !== scores[a]) return scores[b] - scores[a];
+    // segundo tiebreaker: coincide con goal de la ancla
+    if (a === goalH && b !== goalH) return -1;
+    if (b === goalH && a !== goalH) return 1;
+    return 0;
+  });
+}
+
+function showResult(nombre) {
+  const scores   = calcularPerfil();
+  const ranking  = ordenarPerfiles(scores);
+  const dominante = ranking[0];
+
+  // Ocultar quiz
+  document.getElementById('progress-bar-wrap').style.display='none';
+  document.querySelector('.logo').style.display='none';
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+
+  // Mostrar perfil dominante
+  document.getElementById('perfil-container').style.display='block';
+  document.querySelectorAll('.perfil-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('perfil-'+dominante).classList.add('active');
+
+  // Activar tab
+  const COLORES = { insulina:'#C8956C', cortisol:'#8B6B8B', estrogeno:'#4A7A65', testosterona:'#8B7A4A' };
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.remove('active');
+    t.style.color=''; t.style.borderBottomColor='';
+  });
+  const activeTab = document.querySelector('.tab[data-perfil="'+dominante+'"]');
+  if(activeTab){
+    activeTab.classList.add('active');
+    activeTab.style.color = COLORES[dominante];
+    activeTab.style.borderBottomColor = COLORES[dominante];
+  }
+
+  window.scrollTo({top:0});
+}
+
+
+// ─── DATOS ────────────────────────────────────────────────────────────────────
+const DATA = {
+  estrogeno: {
+    emoji:"🌊", nombre:"Perfil Hormonal", hormona:"Estrógeno", color:"#4A7A65",
+    titulo:"Lo que estás viviendo no es la edad. Son tus hormonas fuera de balance.",
+    frase:"Nadie te explicó que esto tiene nombre, causa y solución. Eso cambia hoy.",
+    carta_para:"Para ti a quien le dijeron que era 'normal' — y sabes que no lo es",
+    carta:[
+      "Te han dicho que es la edad. Que así es después de los 35. Que el cuerpo cambia. Y tú lo has creído — aunque en algún lugar sabes que lo que estás viviendo no es simplemente envejecer.",
+      "La retención de líquidos que cambia tu ropa de semana a semana. Los cambios de humor que te sorprenden a ti misma. Los periodos que se volvieron impredecibles. Nada de eso es inevitable — es desequilibrio entre estrógeno y progesterona, y tiene causa y tiene solución.",
+      "Nadie te explicó el mecanismo. Yo tampoco lo entendí hasta que lo viví. BIBA trabaja exactamente las tres vías por donde ese desequilibrio se puede corregir."
+    ],
+    clinico_titulo:"Qué está pasando con tus hormonas",
+    clinico_mecanismo:"El equilibrio entre estrógeno y progesterona regula el ciclo menstrual, el estado de ánimo, la retención de líquidos y la densidad ósea. Cuando el estrógeno domina — por producción excesiva, eliminación deficiente o caída de progesterona — aparecen síntomas cíclicos que muchas médicas normalizan como 'parte del proceso'.",
+    clinico_porque:"La dominancia estrogénica tiene tres causas principales: el cortisol compite con la progesterona (el estrés empeora todo); el microbioma intestinal deficiente no elimina el estrógeno residual bien; y la carga de xenoestrógenos del ambiente (plásticos, cosméticos) suma al estrógeno circulante.",
+    sintomas:["Retención de líquidos cíclica e impredecible","Cambios de humor sin causa aparente","Sensibilidad o dolor en senos antes del periodo","Periodos irregulares, abundantes o dolorosos","Bochornos o sudoración nocturna","Caída de cabello y acné en mandíbula"],
+    ciclo_intro:"No es sensibilidad. Es un ciclo hormonal que escala semana tras semana — y el cuerpo lo absorbe hasta que ya no puede más.",
+    semana1:["Menos inflamación — ese peso pesado en el abdomen empieza a ceder","Mejor digestión — sin el malestar después de comer","Se acabó el mal del puerco — comes y sigues con tu día","Menos ansiedad — tu sistema nervioso empieza a soltar","Duermes más profundo — y eso cambia todo lo demás","La retención de líquidos baja — la ropa empieza a quedar con más consistencia","Los cambios de humor se suavizan — menos sorpresas, más control"],
+    mes1:["Menos antojos por la tarde — el ciclo de glucosa se regula","Más fuerza — tu cuerpo empieza a construir en lugar de sobrevivir","Tu ropa queda diferente — porque la inflamación bajó","Más energía sin depender del café","Empiezas a cumplir sin esfuerzo mental","El ciclo se vuelve predecible — dejas de temerle a ciertas semanas","Los cólicos pierden intensidad — hay días que antes te tumbaban y ahora simplemente pasan"],
+    acciones:[
+      {tip:"Agrega brócoli, coliflor o col a tu comida de hoy.",por:"Contienen DIM e Indol-3-carbinol — los compuestos que más ayudan a eliminar el estrógeno residual por vía hepática."},
+      {tip:"Toma 1.5 a 2 litros de agua hoy.",por:"La hidratación apoya las vías de eliminación hormonal — el hígado y riñones necesitan agua suficiente para procesar y excretar estrógeno residual."},
+      {tip:"Evita calentar comida en recipientes de plástico.",por:"Los xenoestrógenos del plástico migran a la comida con el calor y suman directamente al estrógeno circulante."}
+    ]
+  },
+  testosterona: {
+    emoji:"💪", nombre:"Perfil de Vitalidad", hormona:"Testosterona", color:"#8B7A4A",
+    titulo:"Esa chispa que perdiste no se fue. Solo necesita el ambiente correcto para regresar.",
+    frase:"No es depresión. No es así eres. Es bioquímica — y eso significa que tiene solución.",
+    carta_para:"Para ti que sabes que eras diferente — y quiere regresar a serlo",
+    carta:[
+      "Hay una versión de ti que recuerdas. Que tenía iniciativa, que se emocionaba con proyectos, que disfrutaba moverse. Y ahora haces lo que tienes que hacer — pero sin esa chispa. Sin energía de sobra. Con una niebla mental que no cede.",
+      "Eso no es depresión. No es así eres ahora. Es lo que pasa cuando la testosterona — sí, también en mujeres — cae sostenidamente por el estrés crónico y la falta de señales correctas.",
+      "La chispa no desapareció. Está suprimida. Y el cuerpo puede aprender a producirla de nuevo cuando le das el ambiente correcto. De eso trata BIBA."
+    ],
+    clinico_titulo:"Qué está pasando con tu vitalidad",
+    clinico_mecanismo:"La testosterona en mujeres — producida en ovarios y glándulas suprarrenales — regula la energía, la fuerza muscular, la libido y la motivación. No es una hormona 'masculina': es una hormona humana esencial. Cuando cae, el efecto no es solo físico — es una pérdida de iniciativa, foco y deseo que muchas mujeres asumen como parte de envejecer.",
+    clinico_porque:"El cortisol crónico es el mayor supresor de testosterona en mujeres — cuando el cuerpo percibe amenaza sostenida, prioriza cortisol sobre andrógenos. Sin proteína suficiente, sin grasas saludables como sustrato, y sin el estímulo correcto de movimiento, la producción natural no se recupera sola.",
+    sintomas:["Fatiga que no mejora con descanso","Pérdida de masa muscular o dificultad para ganarla","Libido ausente como estado base (no situacional)","Niebla mental, olvidos, dificultad para concentrarse","Apatía o falta de iniciativa persistente","Cuerpo que no responde al ejercicio como antes"],
+    ciclo_intro:"No es pereza. Es un ciclo de agotamiento que se profundiza con cada semana que pasa — sin el estímulo correcto, el cuerpo no se recupera solo.",
+    semana1:["Menos inflamación — ese peso pesado en el abdomen empieza a ceder","Mejor digestión — sin el malestar después de comer","Se acabó el mal del puerco — comes y sigues con tu día","Menos ansiedad — tu sistema nervioso empieza a soltar","Duermes más profundo — y eso cambia todo lo demás","La energía matutina regresa — no como euforia, como disposición","El ejercicio deja de sentirse como una pelea contigo misma"],
+    mes1:["Menos antojos por la tarde — el ciclo de glucosa se regula","Más fuerza — tu cuerpo empieza a construir en lugar de sobrevivir","Tu ropa queda diferente — porque la inflamación bajó","Más energía sin depender del café","Empiezas a cumplir sin esfuerzo mental","El cuerpo responde al entrenamiento — hay músculo donde antes no había señal","Retomas proyectos parados — la iniciativa regresa sin forzarla"],
+    acciones:[
+      {tip:"Agrega proteína a tu desayuno de hoy — mínimo 25g.",por:"La proteína es el sustrato directo para la producción de andrógenos. Sin ella, el cuerpo no tiene de dónde construir."},
+      {tip:"Toma sol 10 a 15 minutos hoy.",por:"La vitamina D es precursora directa de testosterona — una de las deficiencias más correlacionadas con niveles bajos en mujeres."},
+      {tip:"Esta noche duerme con el cuarto frío y sin luz.",por:"La testosterona se produce principalmente en sueño profundo. El calor y la luz interrumpen las fases que más importan."}
+    ]
+  }
+};
+
+const CICLO_STEPS = [
+  {icon:"🌙",titulo:"Duermes peor de lo normal",desc:"Tu cuerpo no descansa de verdad. Amaneces cansada antes de que empiece el día."},
+  {icon:"⚡",titulo:"Tomas decisiones rápidas",desc:"Con poca energía, el cerebro busca lo fácil. No es debilidad. Es biología en modo ahorro."},
+  {icon:"🍽️",titulo:"Comes lo que está disponible",desc:"No porque quieras. Porque tu cerebro ya no tiene recursos para elegir diferente."},
+  {icon:"📉",titulo:"Energía inestable todo el día",desc:"Picos y caídas. El café de las 3pm. La pesadez después de comer. El bajón de las 6."},
+  {icon:"🔒",titulo:"No te mueves. Más inflamación.",desc:"Sin energía no hay movimiento. Sin movimiento, el cuerpo retiene más. Se siente más pesado."},
+  {icon:"🔄",titulo:"Necesitas más fuerza de voluntad",desc:"Y así empieza otra vez. No por flojera. Por acumulación fisiológica."}
+];
+
+function cicloHTML(color) {
+  return CICLO_STEPS.map((s,i) => `
+    <div style="display:flex;align-items:flex-start;gap:14px;border-left:3px solid ${i===0?color:i===5?'rgba(224,23,90,0.4)':'var(--borderL)'};border-radius:3px;padding:18px 22px;border:1px solid ${i===0?color+'40':'var(--borderL)'};background:${i===0?color+'10':i===5?'rgba(224,23,90,0.05)':'var(--white)'};">
+      <span style="font-size:20px;flex-shrink:0;margin-top:1px;">${s.icon}</span>
+      <div><div style="font-size:14px;font-weight:700;color:var(--carbon);margin-bottom:4px;">${s.titulo}</div><p style="font-size:13px;color:var(--mutedL);margin:0;line-height:1.6;">${s.desc}</p></div>
+    </div>
+    ${i<5?`<div style="display:flex;flex-direction:column;align-items:flex-start;padding:5px 0 5px 36px;gap:2px;"><div style="width:1px;height:10px;background:var(--borderL);"></div><span style="font-size:10px;color:var(--mutedD);font-weight:600;letter-spacing:0.08em;">y eso hace que...</span><div style="color:var(--mutedD);font-size:14px;line-height:1;">↓</div></div>`:''}
+  `).join('');
+}
+
+function renderPerfil(key) {
+  const d = DATA[key];
+  const c = d.color;
+  const el = document.getElementById('perfil-'+key);
+  const incluyeHTML = `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+    <div class="incluye-col">
+      <div class="incluye-head" style="background:var(--carbon);"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--ivory);">El Protocolo BIBA</span></div>
+      ${[["4 Videos HIIT Progresivos + Masterclasses científicas",197],["Sistema de Nutrición + Shopping List + Meal Prep",147],["4 Audios de Mañana + 4 Meditaciones Guiadas",97],["Audio Nocturno de Regulación del Sistema Nervioso",47],["Activadores BIBA por semana + PDF de Suplementos",87],["Grupo de Telegram BIBA + Acompañamiento directo",127],["Checklist + Formularios + Contrato de identidad",47]].map(([n,v],i,a)=>`<div class="incluye-row" ${i===a.length-1?'style="border-bottom:none;"':''}><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--green);color:var(--carbon);">✓</div><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">${n}</span></div><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--mutedD);white-space:nowrap;">($${v})</span></div>`).join('')}
+    </div>
+    <div class="incluye-col">
+      <div class="incluye-head" style="background:linear-gradient(135deg,var(--pink),#c4104d);"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#fff;">🎁 Bonos exclusivos</span></div>
+      <div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--pink);color:#fff;">✓</div><span style="font-size:12.5px;color:var(--carbon);">Masterclass "Conviértete en Ella"</span></div><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--mutedD);white-space:nowrap;">($97)</span></div>
+      <div class="incluye-row"><div style="display:flex;align-items:center;gap:10px;"><div class="check-circle" style="background:var(--pink);color:#fff;">✓</div><span style="font-size:12.5px;color:var(--carbon);">Postres BIBA</span></div><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--mutedD);white-space:nowrap;">($27)</span></div>
+      ${[80,70,75,65,60].map((w,i)=>`<div class="ghost-row" ${i===4?'style="border-bottom:none;"':''}><div class="ghost-bar" style="width:${w}%;opacity:${(0.35-i*0.07).toFixed(2)};"></div></div>`).join('')}
+    </div>
+  </div>
+  <div style="background:var(--white);border-radius:4px;border:1px solid var(--borderL);overflow:hidden;">
+    <div style="height:4px;background:linear-gradient(90deg,var(--green),var(--pink));"></div>
+    <div style="padding:36px 40px;text-align:center;">
+      <p style="font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--mutedD);margin-bottom:6px;">Valor total real</p>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:var(--mutedL);text-decoration:line-through;margin-bottom:6px;">$702 USD</p>
+      <p style="font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--mutedD);margin-bottom:4px;">Precio regular</p>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--mutedL);text-decoration:line-through;margin-bottom:20px;">$299 USD</p>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--carbon);margin-bottom:24px;">Pero hoy tienes una oportunidad única:</p>
+      <div class="precio-reveal" id="reveal-${key}" onclick="revelar('${key}')"><span style="font-size:13px;color:var(--mutedD);margin-bottom:8px;">Toca para ver tu precio</span><div class="shimmer"></div></div>
+      <div><a href="https://soybiba.com" class="cta-btn">Quiero activar BIBA Nivel 1 →</a></div>
+      <p style="font-size:11px;color:var(--mutedD);margin-top:14px;">🔒 Acceso inmediato · Garantía de reembolso · Pago seguro vía Stripe</p>
+    </div>
+  </div>`;
+
+  el.innerHTML = `
+  <div class="hero" style="background:#181818;border-color:${c};text-align:center;">
+    <div class="section-inner">
+      <div class="hero-badge" style="border-color:${c}44;margin:0 auto 20px;"><span>${d.emoji}</span><span class="hero-badge-name" style="color:${c};">${d.nombre}</span><span class="hero-badge-sep">·</span><span class="hero-badge-hormona">${d.hormona}</span></div>
+      <h1>${d.titulo}</h1>
+      <p class="hero-frase" style="color:${c};">"${d.frase}"</p>
+    </div>
+  </div>
+
+  <div class="section" style="background:#181818;border-bottom:1px solid #1a1a1a;padding-top:48px;padding-bottom:52px;">
+    <div class="section-inner-sm" style="text-align:center;">
+      
+      <p style="font-family:'Cormorant Garamond',serif;font-size:clamp(17px,2.5vw,22px);font-weight:600;color:#fff;line-height:1.4;margin-bottom:28px;max-width:520px;margin-left:auto;margin-right:auto;">Haz clic ahora y descubre por qué tu cuerpo ya no responde como antes… el error #1 que está frenando tu energía y el primer paso simple que puedes tomar hoy para activarla de nuevo.</p>
+      <div class="vsl-box"><div class="vsl-glow" style="background:radial-gradient(ellipse at center,${c}18,transparent 70%);"></div><div class="vsl-btn">▶</div><p class="vsl-label">Video VSL — próximamente</p></div>
+      <p style="font-size:14px;color:#888;line-height:1.75;max-width:480px;margin:20px auto 0;">En este video descubres por qué tu cuerpo no responde a dietas ni ejercicios… y el primer paso simple que realmente estabiliza tu energía y controla los antojos.</p>
+    </div>
+  </div>
+
+  <div class="section" style="background:var(--light);border-bottom:1px solid var(--borderL);">
+    <div class="section-inner-sm">
+      <p style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:${c};font-style:italic;margin-bottom:24px;line-height:1.4;">${d.carta_para}</p>
+      ${d.carta.map(p=>`<p style="font-size:15px;color:var(--mutedL);line-height:1.8;margin-bottom:18px;">${p}</p>`).join('')}
+      <p class="firma">— Cynthia Cowan, Health Coach Certificada · IIN · ACE Fitness · 10 años</p>
+    </div>
+  </div>
+
+  <div class="section" style="background:var(--white);border-bottom:1px solid var(--borderL);">
+    <div class="section-inner">
+      <div class="section-tag"><div class="section-tag-line" style="background:${c};"></div><span class="section-tag-text" style="color:${c};">Análisis clínico</span></div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(22px,3vw,34px);font-weight:700;color:var(--carbon);margin-bottom:32px;line-height:1.1;">${d.clinico_titulo}</h2>
+      <div class="grid-2" style="margin-bottom:24px;">
+        <div class="card-light" style="border-left:3px solid ${c};"><div style="font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:${c};margin-bottom:10px;">Qué está pasando</div><p style="font-size:13.5px;color:var(--carbon);line-height:1.75;">${d.clinico_mecanismo}</p></div>
+        <div class="card-light" style="border-left:3px solid var(--borderL);"><div style="font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--mutedD);margin-bottom:10px;">Por qué ocurre</div><p style="font-size:13.5px;color:var(--carbon);line-height:1.75;">${d.clinico_porque}</p></div>
+      </div>
+      <div class="card-white"><div style="font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--mutedD);margin-bottom:16px;">Síntomas más frecuentes</div><div class="sym-grid">${d.sintomas.map(s=>`<div class="sym-item"><div class="sym-dot" style="background:${c};"></div><span style="font-size:13px;color:var(--carbon);line-height:1.5;">${s}</span></div>`).join('')}</div></div>
+    </div>
+  </div>
+
+  <div class="section" style="background:var(--light);border-bottom:1px solid var(--borderL);">
+    <div class="section-inner-xs">
+      <div style="text-align:center;margin-bottom:40px;">
+        <div class="section-tag" style="justify-content:center;margin-bottom:14px;"><div class="section-tag-line" style="background:${c};"></div><span class="section-tag-text" style="color:${c};">Por qué es tan difícil romperlo</span><div class="section-tag-line" style="background:${c};"></div></div>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(24px,3.5vw,38px);font-weight:700;color:var(--carbon);margin-bottom:16px;line-height:1.1;">El ciclo del agotamiento.</h2>
+        <p style="font-size:14px;color:var(--mutedL);line-height:1.75;">${d.ciclo_intro}</p>
+      </div>
+      ${cicloHTML(c)}
+      <div class="quote-box" style="background:var(--white);border-color:${c};margin:32px 0 24px;"><span class="quote-mark" style="color:${c}30;">"</span><p style="font-family:'Cormorant Garamond',serif;font-size:clamp(15px,2vw,18px);font-style:italic;color:var(--carbon);line-height:1.75;padding-top:8px;">Intentar cambiar con fuerza de voluntad cuando tu sistema nervioso está en alerta es como conducir con el freno de mano puesto. Gastas el doble de energía y avanzas la mitad.</p></div>
+      <div style="text-align:center;"><p style="font-size:14px;color:var(--mutedL);margin-bottom:8px;line-height:1.7;">No es que no tengas ganas. Es que cada día el ciclo te deja con menos.</p><p style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:${c};">BIBA rompe esto desde el primer paso.</p></div>
+    </div>
+  </div>
+
+  <div class="section" style="background:var(--carbon);border-bottom:1px solid #1a1a1a;">
+    <div class="section-inner">
+      <div style="text-align:center;margin-bottom:48px;"><div class="section-tag" style="justify-content:center;margin-bottom:14px;"><div class="section-tag-line" style="background:${c};"></div><span class="section-tag-text" style="color:${c};">El sistema</span><div class="section-tag-line" style="background:${c};"></div></div><h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(24px,3.5vw,40px);font-weight:700;color:var(--ivory);margin-bottom:12px;line-height:1.1;">Lo que cambia con <em style="color:${c};font-style:italic;">BIBA.</em></h2><p style="font-size:15px;color:#888;max-width:520px;margin:0 auto;line-height:1.7;">No es un plan de dieta. No es una rutina de ejercicio. Es un sistema de tres capas que trabaja tu biología desde adentro.</p></div>
+      <div class="grid-3" style="margin-bottom:40px;">
+        <div class="pilar-card" style="border-color:var(--green);"><div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;"><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--green);letter-spacing:0.1em;">01</span><span style="font-size:20px;">🥗</span></div><div style="font-size:15px;font-weight:700;color:var(--ivory);margin-bottom:6px;line-height:1.3;">Nutrición de Alta Densidad</div><p style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--green);margin-bottom:12px;line-height:1.5;">No quitas alimentos. Añades lo que tu cuerpo necesita.</p><p style="font-size:13px;color:#888;line-height:1.65;">Cada semana incorporas una mejora concreta que reduce antojos, estabiliza energía y baja inflamación sin esfuerzo mental.</p></div>
+        <div class="pilar-card" style="border-color:${c};"><div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;"><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:${c};letter-spacing:0.1em;">02</span><span style="font-size:20px;">⚡</span></div><div style="font-size:15px;font-weight:700;color:var(--ivory);margin-bottom:6px;line-height:1.3;">Activadores Metabólicos</div><p style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:${c};margin-bottom:12px;line-height:1.5;">Empiezas con minutos, no con horas.</p><p style="font-size:13px;color:#888;line-height:1.65;">Movimientos cortos diseñados para despertar el metabolismo y dejar al cuerpo trabajando después de terminar.</p></div>
+        <div class="pilar-card" style="border-color:var(--pink);"><div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;"><span style="font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:700;color:var(--pink);letter-spacing:0.1em;">03</span><span style="font-size:20px;">🧠</span></div><div style="font-size:15px;font-weight:700;color:var(--ivory);margin-bottom:6px;line-height:1.3;">Regulación del Sistema Nervioso</div><p style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--pink);margin-bottom:12px;line-height:1.5;">Ningún cuerpo cambia en alerta constante.</p><p style="font-size:13px;color:#888;line-height:1.65;">Bajamos el ruido fisiológico que provoca hambre, cansancio y retención. Tu sistema nervioso aprende a soltar.</p></div>
+      </div>
+      <div style="background:#0d0d0d;border:1px solid #1f1f1f;border-radius:3px;padding:32px 36px;border-left:3px solid ${c};"><div style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:${c};margin-bottom:20px;">El efecto acumulativo</div><p style="font-size:14px;color:#888;margin-bottom:24px;line-height:1.7;">Cuando las tres capas trabajan juntas, algo cambia que no habías experimentado antes.</p><div style="display:flex;flex-direction:column;gap:12px;">${["Tu mente deja de negociar contigo cada mañana","El progreso deja de depender de ti y empieza a ocurrir solo","Cumplir se vuelve más fácil que no cumplir","El físico cambia como consecuencia. No por presión. Por adaptación."].map(f=>`<div style="display:flex;align-items:flex-start;gap:12px;"><span style="color:${c};font-weight:700;font-size:14px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:14px;color:var(--ivory);line-height:1.55;">${f}</span></div>`).join('')}</div></div>
+    </div>
+  </div>
+
+  <div class="section" style="background:var(--white);border-bottom:1px solid var(--borderL);">
+    <div class="section-inner">
+      <div style="margin-bottom:48px;"><div class="section-tag"><div class="section-tag-line" style="background:${c};"></div><span class="section-tag-text" style="color:${c};">El protocolo</span></div><h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(24px,3.5vw,40px);font-weight:700;color:var(--carbon);margin-bottom:12px;line-height:1.05;">Así empieza tu mañana con BIBA</h2><p style="font-size:15px;color:var(--mutedL);line-height:1.75;max-width:560px;">No decides nada al despertar. Todo ya está listo. Sin pensar. Sin decidir. Sin fricción.</p></div>
+      <div style="background:var(--carbon);border-radius:3px;padding:28px 32px;margin-bottom:20px;border-left:3px solid ${c};"><div style="font-size:11px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:${c};margin-bottom:14px;">La noche anterior</div><p style="font-size:14px;color:#aaa;margin-bottom:18px;line-height:1.6;">Preparas todo para que mañana solo presiones play.</p><div class="sym-grid">${["El desayuno listo en el refrigerador","Tu mat en su lugar","El agua en tu mesa de noche","Los suplementos del día listos","Ya viste el ejercicio de la semana"].map(it=>`<div style="display:flex;align-items:center;gap:10px;"><div style="width:5px;height:5px;border-radius:50%;background:${c};flex-shrink:0;"></div><span style="font-size:13px;color:var(--ivory);">${it}</span></div>`).join('')}</div></div>
+      <div style="margin-bottom:20px;"><div style="font-size:11px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:var(--mutedD);margin-bottom:20px;">Cómo crece semana a semana</div><div class="grid-4" style="margin-bottom:16px;">${[["Semana 1","19 min",c],["Semana 2","21 min","var(--carbon)"],["Semana 3","23 min","var(--carbon)"],["Semana 4","25 min","var(--carbon)"]].map(([sem,t,col],i)=>`<div class="card-light" style="border-top:3px solid ${i===0?c:'var(--borderL)'};"><div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mutedD);margin-bottom:6px;">${sem}</div><div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:${col};margin-bottom:12px;line-height:1;">${t}</div><div style="font-size:11px;color:var(--mutedL);line-height:1.6;">Audio · 4 min<br>Calentamiento · 5 min<br>Ejercicio · ${5+i} min<br>Meditación · ${5+i} min</div></div>`).join('')}</div><div class="card-light" style="border-left:3px solid ${c};padding:16px 22px;"><p style="font-size:13.5px;color:var(--carbon);line-height:1.7;">Empiezas con <strong>19 minutos</strong>. Terminas con <strong>25</strong>. Nunca se siente como un salto. Siempre como el siguiente paso natural.</p></div></div>
+      <div style="background:var(--carbon);border-radius:3px;padding:32px 36px;text-align:center;border-top:3px solid ${c};"><p style="font-family:'Cormorant Garamond',serif;font-size:clamp(20px,2.5vw,28px);font-weight:700;color:var(--ivory);margin-bottom:8px;line-height:1.2;">Solo presionas play.</p><p style="font-family:'Cormorant Garamond',serif;font-size:16px;font-style:italic;color:${c};">Y el sistema hace el resto.</p></div>
+    </div>
+  </div>
+
+  <div class="section" style="background:var(--light);border-bottom:1px solid var(--borderL);">
+    <div class="section-inner">
+      <div class="section-tag"><div class="section-tag-line" style="background:${c};"></div><span class="section-tag-text" style="color:${c};">Lo que vas a notar</span></div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(22px,3vw,34px);font-weight:700;color:var(--carbon);margin-bottom:32px;line-height:1.1;">Cambios reales.<br><em style="color:${c};font-style:italic;">En tu cuerpo, tu energía, tu mente.</em></h2>
+      <div class="cambios-grid">
+        <div class="card-white" style="border-top:3px solid ${c};"><div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${c};margin-bottom:16px;">Semana 1</div><div style="display:flex;flex-direction:column;gap:10px;">${d.semana1.map(it=>`<div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:${c};font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">${it}</span></div>`).join('')}</div></div>
+        <div class="card-white" style="border-top:3px solid ${c};"><div style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${c};margin-bottom:16px;">Mes 1</div><div style="display:flex;flex-direction:column;gap:10px;">${d.mes1.map(it=>`<div style="display:flex;align-items:flex-start;gap:10px;"><span style="color:${c};font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px;">→</span><span style="font-size:13.5px;color:var(--carbon);line-height:1.55;">${it}</span></div>`).join('')}</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="background:var(--light);border-bottom:1px solid var(--borderL);">
+    <div class="section-inner-900">${incluyeHTML}</div>
+  </div>
+
+  <div class="section" style="background:var(--light);border-bottom:1px solid var(--borderL);">
+    <div class="section-inner"><div style="text-align:center;margin-bottom:40px;"><div class="section-tag" style="justify-content:center;margin-bottom:14px;"><div class="section-tag-line" style="background:var(--green);"></div><span class="section-tag-text" style="color:var(--green);">Resultados reales</span></div><h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(24px,3.5vw,38px);font-weight:700;color:var(--carbon);line-height:1.1;">Lo que dicen las mujeres<br>que ya <em style="color:var(--pink);font-style:italic;">vivieron BIBA.</em></h2></div><div class="grid-3"><div class="testi-card"><div class="testi-top"></div><div style="font-size:16px;color:#f5a623;letter-spacing:2px;margin-bottom:14px;">★★★★★</div><p style="font-size:14px;color:var(--mutedL);line-height:1.75;margin-bottom:14px;">"Yo soy blanco o negro. O hago todo perfecto… o si me como unas papitas siento que ya todo se arruinó. Aquí fue la primera vez que eso no pasó. Cada vez tengo menos antojos, más energía y, sobre todo, ya no siento que estoy fallando."</p><div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:18px;padding:6px 10px;background:rgba(155,196,32,0.08);border-radius:2px;display:inline-block;">→ Primera vez que rompió el ciclo todo-o-nada.</div><div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:50%;background:var(--carbon);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--ivory);">P</span></div><div><div style="font-size:13px;font-weight:700;color:var(--carbon);">Paola, 36</div><div style="font-size:11px;color:var(--mutedD);">Había intentado nutriólogas y Ozempic</div></div></div></div><div class="testi-card"><div class="testi-top"></div><div style="font-size:16px;color:#f5a623;letter-spacing:2px;margin-bottom:14px;">★★★★★</div><p style="font-size:14px;color:var(--mutedL);line-height:1.75;margin-bottom:14px;">"A mí me encantan los hacks. Reducir los picos de glucosa sí que hace la diferencia. Ya no me da el mal del puerco después de comer, no me hincho y tengo mucha más energía. Se me nota hasta en la cara."</p><div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:18px;padding:6px 10px;background:rgba(155,196,32,0.08);border-radius:2px;display:inline-block;">→ Energía estable. Sin bajones. Sin hinchazón.</div><div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:50%;background:var(--carbon);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--ivory);">A</span></div><div><div style="font-size:13px;font-weight:700;color:var(--carbon);">Andrea, 39</div><div style="font-size:11px;color:var(--mutedD);">Había intentado retos y gym</div></div></div></div><div class="testi-card"><div class="testi-top"></div><div style="font-size:16px;color:#f5a623;letter-spacing:2px;margin-bottom:14px;">★★★★★</div><p style="font-size:14px;color:var(--mutedL);line-height:1.75;margin-bottom:14px;">"Al principio me sentía ridícula haciendo tan poquito… pero todo suma. Me siento mucho mejor. Y me encanta que puedo hacerlo incluso cuando estoy de viaje."</p><div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:18px;padding:6px 10px;background:rgba(155,196,32,0.08);border-radius:2px;display:inline-block;">→ Más resultados con menos esfuerzo.</div><div style="display:flex;align-items:center;gap:10px;"><div style="width:36px;height:36px;border-radius:50%;background:var(--carbon);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--ivory);">L</span></div><div><div style="font-size:13px;font-weight:700;color:var(--carbon);">Lucía, 42</div><div style="font-size:11px;color:var(--mutedD);">Había intentado pilates y keto</div></div></div></div></div></div>
+  </div>
+
+  <div class="section" style="background:var(--light);border-bottom:1px solid var(--borderL);">
+    <div class="section-inner-sm"><div style="text-align:center;margin-bottom:32px;"><div class="section-tag" style="justify-content:center;margin-bottom:14px;"><div class="section-tag-line" style="background:${c};"></div><span class="section-tag-text" style="color:${c};">Quién está detrás de BIBA</span><div class="section-tag-line" style="background:${c};"></div></div><h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(24px,3.5vw,38px);font-weight:700;color:var(--carbon);margin-bottom:12px;line-height:1.1;">Conoce a <em style="color:${c};font-style:italic;">Cynthia.</em></h2><p style="font-size:14px;color:var(--mutedL);line-height:1.75;max-width:480px;margin:0 auto;">Health Coach Certificada por IIN y ACE Fitness. 10 años ayudando a mujeres a entender su cuerpo — no a pelearse con él.</p></div><div class="vsl-box" style="margin-bottom:24px;"><div class="vsl-glow" style="background:radial-gradient(ellipse at 60% 40%,${c}18,transparent 65%);"></div><div class="vsl-btn">▶</div><p class="vsl-label">Video — próximamente</p></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;"><div style="display:flex;align-items:center;gap:10px;background:var(--white);border-radius:3px;padding:12px 16px;border:1px solid var(--borderL);"><span style="font-size:16px;">🎓</span><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">Health Coach Certificada · IIN</span></div><div style="display:flex;align-items:center;gap:10px;background:var(--white);border-radius:3px;padding:12px 16px;border:1px solid var(--borderL);"><span style="font-size:16px;">🎓</span><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">Certificada · ACE Fitness</div><div style="display:flex;align-items:center;gap:10px;background:var(--white);border-radius:3px;padding:12px 16px;border:1px solid var(--borderL);"><span style="font-size:16px;">📅</span><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">10 años de experiencia</span></div><div style="display:flex;align-items:center;gap:10px;background:var(--white);border-radius:3px;padding:12px 16px;border:1px solid var(--borderL);"><span style="font-size:16px;">🌎</span><span style="font-size:12.5px;color:var(--carbon);line-height:1.4;">+200 mujeres en el protocolo BIBA</span></div></div></div>
+  </div>
+
+  <div class="section" style="background:var(--carbon);padding-bottom:64px;">
+    <div class="section-inner-sm">
+      <div class="section-tag"><div class="section-tag-line" style="background:${c};"></div><span class="section-tag-text" style="color:${c};">Empieza hoy</span></div>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(22px,3vw,34px);font-weight:700;color:var(--ivory);margin-bottom:8px;line-height:1.1;">3 cosas que puedes hacer <em style="color:${c};font-style:italic;">hoy mismo.</em></h2>
+      <p style="font-size:14px;color:#888;margin-bottom:32px;line-height:1.65;">Sin esperar al protocolo. Sin comprar nada. Estas tres acciones ya tienen efecto en tu bioquímica hoy.</p>
+      <div style="display:flex;flex-direction:column;gap:16px;">${d.acciones.map((a,i)=>`<div style="background:#111;border-radius:3px;padding:22px 24px;border-left:3px solid ${c};position:relative;"><div style="position:absolute;top:22px;right:22px;width:28px;height:28px;border-radius:50%;background:${c}22;display:flex;align-items:center;justify-content:center;"><span style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:${c};">${i+1}</span></div><div style="font-size:14px;font-weight:700;color:var(--ivory);margin-bottom:8px;padding-right:36px;line-height:1.4;">${a.tip}</div><p style="font-size:13px;color:#888;line-height:1.65;"><span style="color:${c};font-weight:700;">Por qué: </span>${a.por}</p></div>`).join('')}</div>
+      <div style="margin-top:36px;text-align:center;"><a href="https://soybiba.com" class="cta-btn">Activar BIBA Nivel 1 → $99 USD</a><p style="font-size:11px;color:#555;margin-top:14px;">🔒 Acceso inmediato · Garantía de reembolso · Pago seguro vía Stripe</p></div>
+    </div>
+  </div>`;
+}
+
+// Render dinámicos
+renderPerfil('estrogeno');
+renderPerfil('testosterona');
+
+// Generar ciclos para perfiles estáticos (insulina y cortisol)
+document.getElementById('ciclo-insulina').innerHTML = cicloHTML('#C8956C');
+document.getElementById('ciclo-cortisol').innerHTML = cicloHTML('#8B6B8B');
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+const COLORES = { insulina:'#C8956C', cortisol:'#8B6B8B', estrogeno:'#4A7A65', testosterona:'#8B7A4A' };
+
+function cambiarPerfil(key, btn) {
+  document.querySelectorAll('.perfil-section').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.remove('active');
+    t.style.color = '';
+    t.style.borderBottomColor = '';
+  });
+  document.getElementById('perfil-'+key).classList.add('active');
+  btn.classList.add('active');
+  btn.style.color = COLORES[key];
+  btn.style.borderBottomColor = COLORES[key];
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Activar tab inicial
+document.querySelector('.tab[data-perfil="insulina"]').style.color = '#C8956C';
+document.querySelector('.tab[data-perfil="insulina"]').style.borderBottomColor = '#C8956C';
+
+// ─── PRECIO REVEAL ────────────────────────────────────────────────────────────
+function revelar(key) {
+  const box = document.getElementById('reveal-'+key);
+  if (!box || box.classList.contains('revealed')) return;
+  box.classList.add('revealed');
+  box.innerHTML = `<span style="font-family:'Cormorant Garamond',serif;font-size:58px;font-weight:700;color:var(--pink);line-height:1;">$99 USD</span><span style="font-size:11px;color:var(--mutedD);margin-top:6px;">Pago único · Sin suscripción</span>`;
+}
+
+</script>
+</body>
+</html>
