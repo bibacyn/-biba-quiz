@@ -192,10 +192,10 @@ function calculateProfile() {
 }
 
 const profiles = {
-  C: { name: 'Cortisol', tag: 'Perfil_Cortisol', title: 'Perfil Cortisol', desc: 'Tu cuerpo está en modo alerta constante. El estrés crónico está afectando tu energía, sueño y peso. El programa BIBA te ayudará a regular tu respuesta al estrés y recuperar el equilibrio.' },
-  I: { name: 'Insulina', tag: 'Perfil_Insulina', title: 'Perfil Insulina', desc: 'Tu metabolismo necesita atención. Los antojos, la dificultad para perder peso y la energía inestable son señales de desbalance insulínico. BIBA tiene el protocolo exacto para ti.' },
-  T: { name: 'Testosterona', tag: 'Perfil_Testosterona', title: 'Perfil Testosterona', desc: 'Tu energía vital y motivación están bajas. El desbalance de testosterona afecta tu libido, masa muscular y estado de ánimo. BIBA te devuelve tu vitalidad.' },
-  E: { name: 'Estrógeno', tag: 'Perfil_Estrogeno', title: 'Perfil Estrógeno', desc: 'Tus fluctuaciones hormonales están afectando tu ciclo, estado de ánimo y bienestar. El programa BIBA está diseñado para estabilizar tu estrógeno de forma natural.' }
+  C: { name: 'Cortisol', tag: 'Perfil_Cortisol', title: 'Perfil Cortisol', desc: 'Tu cuerpo está en modo alerta constante. El estrés crónico está afectando tu energía, sueño y peso. El programa BIBA te ayudará a regular tu respuesta al estrés y recuperar el equilibrio.', url: 'CORTISOL_LANDING_PAGE_URL' },
+  I: { name: 'Insulina', tag: 'Perfil_Insulina', title: 'Perfil Insulina', desc: 'Tu metabolismo necesita atención. Los antojos, la dificultad para perder peso y la energía inestable son señales de desbalance insulínico. BIBA tiene el protocolo exacto para ti.', url: 'INSULINA_LANDING_PAGE_URL' },
+  T: { name: 'Testosterona', tag: 'Perfil_Testosterona', title: 'Perfil Testosterona', desc: 'Tu energía vital y motivación están bajas. El desbalance de testosterona afecta tu libido, masa muscular y estado de ánimo. BIBA te devuelve tu vitalidad.', url: 'TESTOSTERONA_LANDING_PAGE_URL' },
+  E: { name: 'Estrógeno', tag: 'Perfil_Estrogeno', title: 'Perfil Estrógeno', desc: 'Tus fluctuaciones hormonales están afectando tu ciclo, estado de ánimo y bienestar. El programa BIBA está diseñado para estabilizar tu estrógeno de forma natural.', url: 'ESTROGENO_LANDING_PAGE_URL' }
 };
 
 async function submitForm() {
@@ -233,8 +233,14 @@ async function submitForm() {
       <h3>${profile.title}</h3>
       <p>${profile.desc}</p>
       <p>Hemos enviado tu resultado a <strong>${email}</strong>. Revisa tu bandeja de entrada.</p>
-      <a href="https://cynthiahcoaching.systeme.io/f2a72c12" class="buy-btn">Quiero equilibrar mis hormonas →</a>
+      <p style="color:#8b5e3c; font-style:italic;">Redirigiendo a tu página de resultados...</p>
+      <a href="${profile.url}" class="buy-btn">Ver mi resultado completo →</a>
     </div>`;
+
+  // Redirect to profile-specific landing page after 3 seconds
+  setTimeout(() => {
+    window.location.href = profile.url;
+  }, 3000);
 }
 </script>
 </body>
