@@ -199,25 +199,32 @@ const profiles = {
 };
 
 async function submitForm() {
-  const name = document.getElementById('user-name').value.trim();
+  const nombre = document.getElementById('user-name').value.trim();
   const email = document.getElementById('user-email').value.trim();
-  if (!name || !email) { alert('Por favor completa tu nombre y email.'); return; }
+  if (!nombre || !email) { alert('Por favor completa tu nombre y email.'); return; }
   if (!email.includes('@')) { alert('Por favor ingresa un email válido.'); return; }
 
   const profileKey = calculateProfile();
   const profile = profiles[profileKey];
+  const dominante = profile.tag;
 
   document.getElementById('form-section').style.display = 'none';
   document.getElementById('result').style.display = 'block';
   document.getElementById('result').innerHTML = '<div class="loading">Calculando tu perfil hormonal...</div>';
 
   try {
-    await fetch('/.netlify/functions/submit', {
+    await fetch('https://script.google.com/macros/s/AKfycby1lomIMVM3pL4DjJ4zQZK6JFzcp2cEfkcQysGqq5pu2G6nK5ku1OOnyPaMl6PjrFePbg/exec', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ first_name: name, email: email, hormone_profile: profile.tag })
+      body: JSON.stringify({
+        first_name: nombre,
+        email: email,
+        hormone_profile: dominante
+      })
     });
-  } catch(e) { console.log('Submission error:', e); }
+  } catch (e) {
+    console.warn('Sheet webhook error:', e);
+  }
 
   document.getElementById('result').innerHTML = `
     <div class="result-card">
