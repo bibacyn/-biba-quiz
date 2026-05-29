@@ -213,8 +213,9 @@ async function submitForm() {
   document.getElementById('result').innerHTML = '<div class="loading">Calculando tu perfil hormonal...</div>';
 
   try {
-    await fetch('https://script.google.com/macros/s/AKfycby1lomIMVM3pL4DjJ4zQZK6JFzcp2cEfkcQysGqq5pu2G6nK5ku1OOnyPaMl6PjrFePbg/exec', {
+    await fetch('https://script.google.com/macros/s/AKfycbzXaqC1GSb-8evQP-p8stmHQ0--4Nv_r2wqEwOW5jDYJBqgv4Ekz1ZmxUJsfMdf2KM1VA/exec', {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         first_name: nombre,
